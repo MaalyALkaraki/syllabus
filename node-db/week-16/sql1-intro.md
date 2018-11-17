@@ -132,7 +132,7 @@ Load the initial data (so that you can start practising) from the supplied scrip
 * rooms.sql
 * room-types.sql
 
-These can be downloaded from [TBD](https://github.com/KeithBremer/cyf-hotel/scripts), moved to your own directory then run using:
+These can be downloaded from [SQL scripts](https://github.com/KeithBremer/syllabus/node-db/sql), moved to your own directory then run using:
 ```
     $ cd path/to/scripts
     $ psql
