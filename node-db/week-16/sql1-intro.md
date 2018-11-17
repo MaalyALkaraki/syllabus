@@ -261,20 +261,24 @@ Here, the query uses the alias as the column heading. Aliases can also be used i
 As with Javascript you can use a variety of 'operators' to define expressions in SQL.
 
 Arithmetic:
-* \*    Multiply
-* \/    Divide
-* \+    Add
-* \-    Subtract
-* \%    Modulo (remainder)
-* (...) Parenteses (to override precedence)
+
+    *   Multiply
+
+    /   Divide
+
+    +   Add
+
+    -   Subtract
+
+    %   Modulo (remainder)
+
+    (...) Parentheses (to override precedence)
 
 String:
-* ||    Concatenate
 
-Functions:  These are not part of the SQL standard and so each vendor has their own set of functions. Refer to the vendor's documentation (for MySQL see [MySQL_docs](https://dev.mysql.com/doc/refman/5.7/en/))
+    ||  Concatenation
 
----
-## Using SQL Functions
+### Using SQL Functions
 You can use the built-in functions of SQL just as you can in JavaScript, but note that they are different (this is true of most programming languages) but there are also differences between SQL implementations.
 
 You use functions change values, usually of columns, wherever you can use a column, for example, in the selected list of values:
@@ -298,8 +302,7 @@ List room rates after VAT increases to 23.5% (from 20%), but round to the neares
            round(rate * 5/6 * 123.5/100) AS new_rate
        FROM rooms;
 
----
-## Date and Time in SQL
+### Date and Time in SQL
 In SQL dates and times are held in an internal format but are represented externally (when entering values and displaying them) as strings;
 *   Text date format:   'YYYY-MM-DD'    e.g. '2018-07-21' = 21 July 2018
 *   Time format:        'HH:mm:SS.ddd'  e.g. '14:32'
@@ -385,8 +388,7 @@ This will sort the data into descending alphabetic order of country then ascendi
 
 Note: you can order by columns that are not returned by the query.
 
----
-## Limiting the Number of Rows
+### Limiting the Number of Rows
 You can reduce the number of rows returned by using the LIMIT clause at the end of the query:
 
     SELECT id, name, phone, email, country
@@ -441,8 +443,7 @@ When comparing character data or dates you must enclose the values in single quo
 
 Only the rows that match the comparison test (called a predicate) are returned by the query. The predicate can use columns not returned by the query,
 
----
-## Combining Tests in a Predicate
+### Combining Tests in a Predicate
 Use AND and OR to combine tests:
 
     SELECT * FROM reservations
@@ -461,8 +462,7 @@ Another example - to find cheap or Premier rooms on floors 1 and 2 - we might tr
 
 This isn't quite right - it returns rooms on the 3rd and 4th floors. Why?
 
----
-## Overriding Evaluation Order
+### Overriding Evaluation Order
 Just like any programming language, SQL has an evaluation order (precedence). For example, multiply and divide take precedence over add and subtract, so that:
 
     SELECT rate + 20 * 0.85 ...
