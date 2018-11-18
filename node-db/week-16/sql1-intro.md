@@ -125,7 +125,7 @@ The help command is the entry point into the local copy of online documentation.
 ## Populate the Hotel Database
 Load the initial data (so that you can start practising) from the supplied scripts. You will need the following SQL script files:
 * build-hotel.sql
-* custo9mers.sql
+* customers.sql
 * fixup-dates.sql
 * invoices.sql
 * reservations.sql
@@ -145,21 +145,18 @@ Note: Replace `path/to/scripts` with your specific path to the script files.
 
 You can list all the available tables using the `\d` command:
 ```
-    cyf=# \d
-                    List of relations
-    Schema |        Name         |   Type   | Owner 
-    --------+---------------------+----------+-------
-    public | customers           | table    | keith
-    public | customers_id_seq    | sequence | keith
-    public | invoices            | table    | keith
-    public | invoices_id_seq     | sequence | keith
-    public | reservations        | table    | keith
-    public | reservations_id_seq | sequence | keith
-    public | room_types          | table    | keith
-    public | rooms               | table    | keith
-    (8 rows)
+    cyf=# \dt
+            List of relations
+    Schema |     Name      | Type  | Owner 
+    --------+---------------+-------+-------
+    public | charge_types  | table | keith
+    public | customers     | table | keith
+    public | invoices      | table | keith
+    public | reservations  | table | keith
+    public | room_types    | table | keith
+    public | rooms         | table | keith
+    (6 rows)
 ```
-Note that psql prints the list of more than just tables in the database - this list also includes sequences (as above) and views (we don't have any of those). We'll explain those later in the course.
 
 ---
 ## The SELECT Statement
@@ -187,11 +184,15 @@ You can use `SELECT * FROM ...` to return all the columns of the table. For exam
 ```
 This is useful for development and testing when you may not be sure of all the column names. Don't use this syntax in production applications without having a very good reason. 
 
-Note that the use of UPPER/lower case is only to emphasise and differentiate the SQL keywords from the other names (e.g. columns and tables). SQL keywords are not case-sensitive.
+Note that the use of UPPER/lower case is only to emphasise and differentiate the SQL keywords (upper case) from the other names (lower case) e.g. column and table names. SQL keywords are not case-sensitive.
 
 Also note that some SQL implementations (including postgreSQL) allow you to omit the FROM clause, as in:
 
     SELECT 'The area of a 5m diam circle is : ', 3.14159 * 2.5 * 2.5;
+                ?column?              |  ?column?  
+    ------------------------------------+------------
+    The area of a 5m diam circle is :  | 19.6349375
+    (1 row)
 
 ---
 ## Changing the Order and Appearance of Columns
@@ -201,9 +202,10 @@ You can return columns in any order:
 
 Display rows vertically:
 
-    SELECT country, name, phone FROM customers\G
+    \x on
+    SELECT country, name, phone FROM customers;
 
-Note the use of `\G` instead of `;` at the end of the last command.
+Note the use of `\x on` before the command to turn on "expanded" output. You can toggle expanded mode on and off using just `\x` on its own.
 
 ---
 ## Exercise
@@ -215,7 +217,7 @@ Note the use of `\G` instead of `;` at the end of the last command.
 ## Some Useful `psql` Commands
 Display a list of available tables in the database:
 
-    \d
+    \dt
 
 Display the definition of a table:
 
