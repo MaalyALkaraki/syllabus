@@ -283,9 +283,9 @@ String:
 ### Using SQL Functions
 You can use the built-in functions of SQL just as you can in JavaScript, but note that they are different (this is true of most programming languages) but there are also differences between SQL implementations.
 
-You use functions change values, usually of columns, wherever you can use a column, for example, in the selected list of values:
+You use functions to change values, usually of columns, wherever you can use a column, for example, in the selected list of values:
 
-    SELECT name, length(name) namelen, upper(email)
+    SELECT name, length(name) AS namelen, upper(email)
       FROM customers;
 
 This query also uses a column alias (namelen) to provide a meaningful column heading.
@@ -317,7 +317,7 @@ You can perform arithmetic on dates and times, for example:
        FROM reservations
        WHERE checkout_date = current_date + 1;
 
-This query performs subtraction of one date from another (checkout_date - checkin_date) to calculate the number of nights the customer has stayed. It also performs addition (current_date + 1) to get tomorrow's date so that it lists all reservations that will be checking out tomorrow.
+This query performs subtraction of one date from another (`checkout_date - checkin_date`) to calculate the number of nights the customer has stayed. It also performs addition (`current_date + 1`) to get tomorrow's date so that it lists all reservations that will be checking out tomorrow.
 
 Note: current_date is a postgres function that returns the current date.
 

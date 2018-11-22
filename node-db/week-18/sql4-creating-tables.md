@@ -110,7 +110,7 @@ Now insert a new row with a comment:
 
     INSERT INTO invoice_items (invoice_id, item_no,
         item_type, item_time, amount, comment)
-      VALUES (16, 3,
+      VALUES (16, 1,
         'RESTAURANT', '2018-06-12 19:30', 36.95,
         'Great food!');
 
@@ -127,8 +127,8 @@ New table rule:
 
 To do this we must have one or more columns whose value(s) match only one row - this is the **primary key (PK)**.
 
-Primary keys must be unique inside the table
-Primary keys cannot have any NULL values
+*   Primary keys must be unique inside the table
+*   Primary keys cannot have any NULL values
 
 ### Choosing Primary Keys
 Ideally natural attributes of the ‘thing’ we are representing. These must be easily accessible in the 'real' world.

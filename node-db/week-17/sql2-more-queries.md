@@ -22,7 +22,7 @@ The aggregate functions are:
 *   max :   Determine the maximum value of a column
 *   count : Count the number of values (non-null) in a column
 
-All the above are in the SQL standard, most implementations provide others.
+All the above are in the SQL standard, most implementations provide others. SUM and AVG can only apply to numeric data, the others can apply to any datatype.
 
 Further examples:
 
@@ -52,7 +52,7 @@ If you just want to count the number of rows, use count(*) :
 
     SELECT count(*) FROM customers;
 
-## Grouping Rows for Aggregation
+### Grouping Rows for Aggregation
 You can calculate aggregates over subsets of rows using the GROUP BY clause:
 
     SELECT count(*) FROM rooms
@@ -72,13 +72,13 @@ The query calculated the counts correctly but we have no idea which room type ea
 
     SELECT room_type, count(*) FROM rooms
        GROUP BY room_type;
-    room_type   | count 
+     room_type    | count 
     --------------+-------
-    PREMIUM      |    14
-    PREMIER      |    14
-    PREMIER PLUS |     8
-    PREMIUM PLUS |    10
-    FAMILY       |     2
+     PREMIUM      |    14
+     PREMIER      |    14
+     PREMIER PLUS |     8
+     PREMIUM PLUS |    10
+     FAMILY       |     2
     (5 rows)
 
 Notice the `room_type` used for GROUP BY is also included in the SELECT list of values.
@@ -124,7 +124,7 @@ The order of clauses in the SELECT statement is:
        [HAVING ...] ]
        [ORDER BY ...]
 
-The square brackets indicate optional clauses. Note that HAVING is only relevant when you have a GROUP BY and must follow it.
+The square brackets indicate optional clauses. Note that HAVING is only relevant when you have a GROUP BY and must follow it in the SELECT statement.
 
 It can be confusing at first knowing whether to use a WHERE clause or a HAVING clause with GROUP BY.
 
@@ -271,7 +271,9 @@ sally.brown123@nowhere.com
 
 ---
 ## The Vexing Question of NULL
-A column can be assigned a NULL value to indicate it has no value. Because NULL is 'no value' it cannot be compared to anything else. For example, you will never get any results from:
+A column can be assigned a NULL value to indicate it has no value. This can happen when the data for this column is unknown at the time the row is created, for example, employee leaving date, order shipment date, etc... It can also be used when the data is optional.
+
+Because NULL is 'no value' it cannot be compared to anything else. For example, you will never get any results from:
 
     SELECT * FROM customers WHERE postcode = NULL;
 
@@ -353,6 +355,16 @@ For example:
             FROM reservations);
 
 What question does this query answer - remember that the inner query is executed first to provide a result to feed into the outer query.
+
+Subqueries can also be used to check for the existence (or non-existence) of rows in other tables by using the EXISTS or NOT EXISTS keywords, for example:
+
+    SELECT * FROM customers c
+      WHERE NOT EXISTS (SELECT 1 FROM reservations r
+                          WHERE r.cust_id = c.id);
+
+This example lists all customers who have no reservations currently.
+
+It is also an example of a correlated subquery.
 
 Correlated subqueries use values from the outer query - in this case the subquery can't execute first, they must both execute together.
 
