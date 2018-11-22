@@ -274,6 +274,8 @@ sally.brown123@nowhere.com
 ## The Vexing Question of NULL
 A column can be assigned a NULL value to indicate it has no value. This can happen when the data for this column is unknown at the time the row is created, for example, employee leaving date, order shipment date, etc... It can also be used when the data is optional.
 
+Be careful with expressions - any expression that includes a NULL value results in NULL as the expression value.
+
 Because NULL is 'no value' it cannot be compared to anything else. For example, you will never get any results from:
 
     SELECT * FROM customers WHERE postcode = NULL;
