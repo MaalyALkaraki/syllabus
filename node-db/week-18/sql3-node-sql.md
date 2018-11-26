@@ -12,7 +12,7 @@
 ---
 ## Setting Up the Environment
 1.  If not already done, fork and clone the repository: https://github.com/CodeYourFuture/cyf-hotel-db
-2.  If necessary, use npm init to create the package.json file
+2.  If necessary use `npm install` to install dependencies.
 3.  Install Postman
     1. Linux: Search in Ubuntu Software for Postman then install
     2. Mac: download & extract zip file to folder ???
@@ -180,7 +180,7 @@ We can ensure we see a consistent view of the returned JSON by using another too
 
 Ensure that the HTTP request method is set to GET (if not then change it using the drop-down list).
 
-Enter the customers endpoint url (http://localhost:8080/api/customers)in the field that has "Enter request URL" initially.
+Enter the customers endpoint url (http://localhost:8080/api/customers) in the field that has "Enter request URL" initially.
 
 Click the blue Send button.
 
@@ -362,4 +362,6 @@ To test the Insert command from Postman:
 1. Change the method to POST
 2. Set the Body to Raw and JSON(application/json)
 3. Type in the JSON for the new customer in the input area
-4. Click Send then check the response is the new id
+4. Click Send then check the Params tab for the new id
+
+Note: this would normally be done in React by JS code to send via Ajax after completing the form with new details.
