@@ -56,10 +56,14 @@ Why not just a plain file?
 ## Let's Get Started
 We shall use PostgreSQL - a widely used relational database. It's open-source and free to use.
 
+If you use Windows then see [here](). If you have Mac-OS then see [here]().
+
 If you have Ubuntu as your operating system you can install it using:
 ```
     $ sudo apt-get install postgresql postgresql-contrib
 ```
+
+Enter your ubuntu password when asked for it.
 
 For this command you must confirm that you are happy to install the packages and any needed dependencies that the package manager identifies. Generally just type `Y` or `y` to proceed.
 
@@ -74,6 +78,7 @@ Enter your Ubuntu user password when prompted - this is required by the sudo par
 ---
 ## Create the Database
 PostgreSQL initially uses an authorisation mode that depends on the operating system username; that is why we had to use sudo and switch to user 'postgres' to verify our installation.
+
 PostgreSQL also assumes that each user that logs in has a database that has the same name as the user - this makes it very easy to log in - you don't need to remember a new password nor specify the database.
 To create a database and your new user you'll have to use the postgres user again - but only this once more...
 ```
@@ -81,7 +86,7 @@ To create a database and your new user you'll have to use the postgres user agai
     $ sudo -u postgres createuser <your user name>
 ```
 
-REMEMBER \<your user name\> is the username you use to log in to Ubuntu.
+**REMEMBER** &lt;your user name> is the username you use to log in to Ubuntu.
 
 From here onwards you shouldn't need to switch to the postgres user again. You can get into the PostgreSQL command-line tool using just:
 ```
@@ -92,7 +97,7 @@ The output from this command should look something like this:
     psql (10.5 (Ubuntu 10.5-0ubuntu0.18.04))
     Type "help" for help.
 
-    <your user name>=# 
+    <your user name>=#
 ```
 The last line (`<your user name>=#`) is the `psql` command prompt, made up of your user name plus '=#'. Clearly the actual prompt will have your user name, so if the username is `keith` then the prompt will be:
 ```
@@ -143,11 +148,11 @@ These can be downloaded from [SQL scripts](../sql), moved to your own directory 
 
 Note: Replace `path/to/scripts` with your specific path to the script files.
 
-You can list all the available tables using the `\d` command:
+You can list all the available tables using the `\dt` command:
 ```
     cyf=# \dt
             List of relations
-    Schema |     Name      | Type  | Owner 
+    Schema |     Name      | Type  | Owner
     --------+---------------+-------+-------
     public | charge_types  | table | keith
     public | customers     | table | keith
@@ -182,7 +187,7 @@ You can use `SELECT * FROM ...` to return all the columns of the table. For exam
 ```
     SELECT * FROM rooms;
 ```
-This is useful for development and testing when you may not be sure of all the column names. Don't use this syntax in production applications without having a very good reason. 
+This is useful for development and testing when you may not be sure of all the column names. Don't use this syntax in production applications without having a very good reason.
 
 Note that the use of UPPER/lower case is only to emphasise and differentiate the SQL keywords (upper case) from the other names (lower case) e.g. column and table names. SQL keywords are not case-sensitive.
 
@@ -418,7 +423,7 @@ You can choose which rows to display by specifying some condition that must be m
       FROM customers
       WHERE country = 'France';
 
-     id  |        name        |      phone       |            email            | country 
+     id  |        name        |      phone       |            email            | country
     -----+--------------------+------------------+-----------------------------+---------
      9   | Laurence Lebihan   | 91.24.4555       | laurence.lebihan@xmzx.net   | France
      12  | Carine Schmitt     | 40.32.2555       | carine.schmitt@dftu.net     | France
@@ -510,7 +515,7 @@ For example:
 
 `name LIKE '_a%'`   matches names that have 'a' as the 2nd character
 
-`name LIKE '%ow%'`  matches names containing the sequence 'ow'
+`name LIKE '%ow%'`  matches names containing the sequence 'ow' anywhere in the name
 
 LIKE can be inverted using `a NOT LIKE b`
 
@@ -553,4 +558,3 @@ After you have completed the w3schools tutorial parts mentioned above, use your 
 5.  Find the grand total revenue from all invoices and the average invoice total.
 6.  How many invoices have not yet been paid and what is the total owed?
 7.  Find the customer id, checkin and checkout dates for all unpaid invoices.
-

@@ -11,7 +11,7 @@ INSERT INTO invoices (res_id, total, invoice_date, paid)
   SELECT res.id,
          rm.rate * (res.checkout_date - res.checkin_date),
          res.checkout_date,
-	 (total % 11) != 2
+         (rm.rate * (res.checkout_date - res.checkin_date) % 11) != 2
     FROM reservations res JOIN
          rooms rm ON (res.room_no = rm.room_no)
     WHERE res.checkout_date <= CURRENT_DATE
