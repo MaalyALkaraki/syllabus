@@ -68,4 +68,5 @@ The last line (`<your user name>=#`) is the `psql` command prompt, made up of yo
 Note that to exit psql back to the terminal prompt use the command `\q`.
 
 You can continue with the main lesson from **"Run the psql Command Line Interface (CLI)"** now but note that the Linux prompt (where it is shown) is not the same as the Windows prompt that you will see.
+
 ---
