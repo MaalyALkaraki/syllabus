@@ -56,7 +56,7 @@ Why not just a plain file?
 ## Let's Get Started
 We shall use PostgreSQL - a widely used relational database. It's open-source and free to use.
 
-If you use Windows then see [here](). If you have Mac-OS then see [here]().
+If you use Windows then see [here](sql1-w-intro.md). If you have Mac-OS then see [here](sql1-x-intro.md).
 
 If you have Ubuntu as your operating system you can install it using:
 ```
