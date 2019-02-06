@@ -174,7 +174,7 @@ For example:
 
     SELECT name, phone, country FROM customers;
 
-SQL commands entered in the psql command line tool are terminated with a semicolon (;). The SQL command can extend across sevaral lines, but each keyword, name or value must be on just one line. For example:
+SQL commands entered in the psql command line tool are terminated with a semicolon (;). The SQL command can extend across several lines, but each keyword, name or value must be on just one line. For example:
 ```
     SELECT name,
            phone,
@@ -208,10 +208,9 @@ You can return columns in any order:
 
 Display rows vertically:
 
-    \x on
-    SELECT country, name, phone FROM customers;
+    SELECT country, name, phone FROM customers\gx
 
-Note the use of `\x on` before the command to turn on "expanded" output. You can toggle expanded mode on and off using just `\x` on its own.
+Note the use of `\gx` instead of `;` at the end of the command.
 
 ---
 ## Exercise
@@ -228,6 +227,10 @@ Display a list of available tables in the database:
 Display the definition of a table:
 
     \d <table name>
+
+Display help for SQL commands:
+
+    \h [command]
 
 Display a summary of the psql (backslash) commands:
 
@@ -559,6 +562,7 @@ After you have completed the w3schools tutorial parts mentioned above, use your 
 2.  Add new rooms, 501 and 502 as room type PENTHOUSE and set the room rate of each to the default value (as in the new room type).
 3.  Add a new room 503 as a PREMIER PLUS type similar to the other PREMIER PLUS rooms in the hotel.
 4.  Update the rate for room 503 to 143.00 to reflect its improved views over the city.
+
 For extra credit you could try the following:
 5.  Find the grand total revenue from all invoices and the average invoice total.
 6.  How many invoices have not yet been paid and what is the total owed?
