@@ -86,7 +86,7 @@ Check that you can connect and run SQL from node. Create a file, say, sqltest.js
 This should return a complex object that contains a `rows` element with the details for customer 32, as follows:
 
     ...
-    rows: 
+    rows:
      [ { id: 32,
         name: 'Keith Franco',
         email: 'keith.franco@dlha.net',
@@ -96,7 +96,7 @@ This should return a complex object that contains a `rows` element with the deta
         postcode: '97823',
         country: 'USA' } ],
     fields:
-    ... 
+    ...
 
 Notice the structure of the `rows` element - it's an array with each element an object representing one row (there is only one row in this case, of course). Think carefully about how you can access each column value returned.
 
@@ -126,7 +126,7 @@ Looking at the details of the above, we see:
 
 This is fairly obvious - it's a variable `sql` that is set to a string value representing an SQL SELECT statement to retrieve details for all customers (there's no WHERE clause).
 
-The there is:
+Then there is:
 
       conn.query(sql, function (err, result) {
 
@@ -161,9 +161,9 @@ To be useful the endpoint must return the results to the browser. We’re going 
       rows.forEach(function (row) {
         console.log(row.name, row.email, ...);
       });
-      res.status(200).json({
-          customers: rows
-      });
+      res.status(200).json({        // Add these lines...
+          customers: rows           // here...
+      });                           // and here.
     });
     ...
 
@@ -171,12 +171,16 @@ Note: for the moment we'll leave the console log of records in place, in case th
 
 In the browser reload the customers endpoint page. The previous time you did this the page was just blank - you should now see the returned JSON structure with details of all customers.
 
-Note: different browsers render the JSON differently - some provide more features then others.
+Note: different browsers render the JSON differently - some provide more features than others.
 
 ### Use Postman to Check the Response
-We can ensure we see a consistent view of the returned JSON by using another tool to manage the Express API. We've previously installed Postman - find it on your system and run it (it's slow to start - be patient).
+We can ensure we see a consistent view of the returned JSON by using another tool to manage the Express API. We've previously installed Postman - find it on your system and run it (it's slow to start - be patient). If you see a "Signup" window at first just close it - there is no need to sign up. The initial window (as below, with the Create New tab) can also be closed.
 
-![Postman Initial Window](postman-initial.png)
+![Postman Initial Window](Postman-init.png)
+
+You can use the main Postman window (below) to initiate requests to and handle responses from web servers. In our case this is the local server we have set up using NodeJS.
+
+![Postman main window](postman-initial.png)
 
 Ensure that the HTTP request method is set to GET (if not then change it using the drop-down list).
 
@@ -225,7 +229,7 @@ Next, use the id in the SQL query:
         // we’ll add code here next ...
     });
 
-Note the $1 placeholder in SQL matches the id in the array (2nd param). The value of id will replace the $1 when the SQL is executed.
+Note the $1 placeholder in SQL matches the id in the array (2nd param). The value of id will replace the $1 when the SQL is executed. (Note that the placeholders are numbered from 1 - not 0)
 
 If you need to provide more than one value you can use placeholders $2, $3, $4, etc...
 
@@ -261,7 +265,7 @@ Use Postman to check the response, the URL for customer id = 3 is: `http://local
 1.  Make sure you have defined the endpoints for:
     1.  Getting all customers
     2.  Getting a single customer by id
-2.  Using a method similar to the one used to get a customer by id, define an endpoint that can get customers by matching part of the name (e.g. /customers-by-name).
+2.  Using a method similar to the one used to get a customer by id, define an endpoint that can get customers by matching part of the name (e.g. endpoint /customers-by-name).
 
 > Remember there may be more than one matching row!
 
@@ -289,7 +293,7 @@ Issue an SQL INSERT command with values and use $n placeholders for inserted val
     conn.query("INSERT INTO customers " +
                 "(name, email, phone, address) " +
                 "VALUES ($1, $2, $3, $4)",
-            [nam, eml, phn, add], 
+            [nam, eml, phn, add],
         function(err) {
             // callback code goes here
         });
@@ -297,13 +301,13 @@ Issue an SQL INSERT command with values and use $n placeholders for inserted val
 We use the conn.query method even though this isn't strictly a query - think of query as any form of SQL for this purpose.
 
 ### What Can We Do After an Insert?
-*   We should start checking for errors! Not just for inserts!
+*   We should staKeithrt checking for errors! Not just for inserts!
 *   If the table uses an autoincrementing PK we might return the value (that could be useful).
 *   We could console.log the inserted data
 And so forth...
 
 #### Check for Errors
-We should really provide error handling in each endpoint to deal with database errors that could occur anywhere we execute SQL. This should include queries. 
+We should really provide error handling in each endpoint to deal with database errors that could occur anywhere we execute SQL. This should include queries.
 
 The callback function always includes an error parameter as the first parameter. It’s undefined if the command succeeded, or a message if an error occurred.
 
@@ -319,7 +323,7 @@ In this example do.something stands for any of the database actions such as conn
 
 #### Return the Primary Key Value for an Insert
 With auto-generated primary keys it might be helpful for the browser to be given the value of the new key after an insert.  In postgres the simplest way to do this is by modifying the INSERT statement, as follows:
-
+GET
     INSERT INTO table (cola, colb, colc, ...)
         VALUES (expr1, expr2, expr3, ...)
         RETURNING id;
@@ -332,7 +336,7 @@ In the case of SQL executed through Node and Javascript we need to add the RETUR
                 "   (name, email, phone, address) " +
                 " VALUES ($1, $2, $3, $4)" +
                 " RETURNING id",
-            [nam, eml, phn, add], 
+            [nam, eml, phn, add],
         function(err, result) {
             var newId = result.rows[0].id;
             ...
@@ -360,8 +364,82 @@ In the case of SQL executed through Node and Javascript we need to add the RETUR
 
 To test the Insert command from Postman:
 1. Change the method to POST
-2. Set the Body to Raw and JSON(application/json)
-3. Type in the JSON for the new customer in the input area
-4. Click Send then check the Params tab for the new id
+2. Change the 'Params' just below the method to Body
+3. On the line below select to 'raw'
+4. Select JSON(application/json) instead of Text (dropdown list)
+5. Type in the JSON for the new customer in the input area. This should look like:
+```
+    {
+        "name": "Fred Bloggs",
+        "email": "fred.bloggs@wxyz.net",
+        "phone": "+44 7890 123456",
+        "city": "Manchester",
+        "country": "UK"
+    }
+```
+6. Click Send then check the Params tab for the new id
 
 Note: this would normally be done in React by JS code to send via Ajax after completing the form with new details.
+
+---
+### Exercise
+Using the same approach we used for customers, write an endpoint to insert new reservations to the database. Remember that a reservation reserves a room for a customer for a specified date or date range and for a number of guests.
+1.  Add error checking to all your endpoints.
+2.  Create the endpoint using the POST method for endpoint /reservations.
+3.  Ensure that you provide all the needed values in the form data.
+4.  Use Postman to check that your endpoint inserts the new reservation and returns the new id value.
+
+---
+## Deleting Rows
+To delete rows we must provide some way to identify the row (or rows) that we wish to delete. We have already queried customers based on id - we could use a similar technique to delete rows using id.
+
+Create an endpoint for customers using the DELETE method and passing a parameter for the id of the customer to be deleted, as below:
+
+    router.delete("/customers/:id", function(req, res) {
+      // TODO add code here
+      });
+
+---
+### Exercise
+Using what you already know of SQL and NodeJS/express you should be able to complete that endpoint with the relevant steps to delete a customer when given the id of that customer.
+1.  Remember to provide a WHERE clause to govern the rows deleted.
+2.  Ensure you include error checking code in your endpoint.
+3.  You don't need to return anything to the browser except status (or error message if an error occurs).
+
+---
+## Transactions
+By default, PostgreSQL runs each INSERT, UPDATE or DELETE in its own transaction - it either succeeds or fails. But the ACID rules require us to be able to make several changes that either all succeed or all fail. To do this we use a transaction.
+
+For example, in banking, a money transfer between accounts must debit the ‘from’ account and credit the ‘to’ account as a single operation - but this needs two update commands. So...
+
+Start a transaction using the command:
+
+    BEGIN TRANSACTION;
+
+… then issue INSERT, UPDATE and/or DELETE commands
+
+End the transaction with either:
+
+    COMMIT;        -- make changes permanent
+
+or:
+
+    ROLLBACK;    -- undo changes since last BEGIN
+### ACID Rules
+ACID is a mnemonic for:
+
+* Atomic - all related changes succeed or all fail
+* Consistent - committed changes leave the database
+consistent (all rules obeyed)
+* Isolation - users always see a consistent image, can’t see
+incomplete changes
+* Durable - committed changes are permanent (even after
+power failure)
+
+### Exercise
+Change all your endpoints that change the database (that is, use INSERT, UPDATE or DELETE) such that each of the changes take place in the context of a transaction.
+
+NOTE: This is not strictly necessary, since all the changes we have made involved only a single statement each time.  However, if the app changed at some future date to include other actions, these might need the transaction mechanism to make them safe.
+
+---
+## Homework
