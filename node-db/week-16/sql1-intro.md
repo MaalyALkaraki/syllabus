@@ -22,6 +22,7 @@ Key words/phrases are:
 Why not just a plain file?
 * Databases define the structure of the data and the relationships between entities
 * Databases provide data checking
+* Databases provide transparent fast access
 * Can eliminate redundancy and duplication
 * Can be used to answer varied questions
 ---
@@ -173,7 +174,7 @@ For example:
 
     SELECT name, phone, country FROM customers;
 
-SQL commands entered in the psql command line tool are terminated with a semicolon (;). The SQL command can extend across sevaral lines, but each keyword, name or value must be on just one line. For example:
+SQL commands entered in the psql command line tool are terminated with a semicolon (;). The SQL command can extend across several lines, but each keyword, name or value must be on just one line. For example:
 ```
     SELECT name,
            phone,
@@ -207,10 +208,9 @@ You can return columns in any order:
 
 Display rows vertically:
 
-    \x on
-    SELECT country, name, phone FROM customers;
+    SELECT country, name, phone FROM customers\gx
 
-Note the use of `\x on` before the command to turn on "expanded" output. You can toggle expanded mode on and off using just `\x` on its own.
+Note the use of `\gx` instead of `;` at the end of the command.
 
 ---
 ## Exercise
@@ -227,6 +227,10 @@ Display a list of available tables in the database:
 Display the definition of a table:
 
     \d <table name>
+
+Display help for SQL commands:
+
+    \h [command]
 
 Display a summary of the psql (backslash) commands:
 
@@ -249,7 +253,7 @@ You can use expressions in SQL:
     |     103 |     72.2500 |
     ...
 
-Use a column alias give the expression a meaningful name:
+Use a column alias to give the expression a meaningful name:
 
     SELECT room_no,
            rate * 0.85 AS discounted_rate
@@ -284,136 +288,6 @@ Arithmetic:
 String:
 
     ||  Concatenation
-
-### Using SQL Functions
-You can use the built-in functions of SQL just as you can in JavaScript, but note that they are different (this is true of most programming languages) but there are also differences between SQL implementations.
-
-You use functions to change values, usually of columns, wherever you can use a column, for example, in the selected list of values:
-
-    SELECT name, length(name) AS namelen, upper(email)
-      FROM customers;
-
-This query also uses a column alias (namelen) to provide a meaningful column heading.
-
-Functions are available that operate on all different datatypes.
-
-Country names are mixed case so to make sure we always match regardless of the stored case we can use the `lower` function to find all customers from Manchester, UK:
-
-    SELECT * FROM customers
-       WHERE lower(country) = 'uk'
-         AND city = 'Manchester';
-
-List room rates after VAT increases to 23.5% (from 20%), but round to the nearest pound:
-
-    SELECT room_no, room_type, rate AS old_rate,
-           round(rate * 5/6 * 123.5/100) AS new_rate
-       FROM rooms;
-
-### Date and Time in SQL
-In SQL dates and times are held in an internal format but are represented externally (when entering values and displaying them) as strings;
-*   Text date format:   'YYYY-MM-DD'    e.g. '2018-07-21' = 21 July 2018
-*   Time format:        'HH:mm:SS.ddd'  e.g. '14:32'
-*   Date/Time format:   'YYYY-MM-DD HH:mm:SS.ddd'   e.g. '2018-07-21 15:26:04'
-
-You can perform arithmetic on dates and times, for example:
-
-    SELECT cust_id, room_no, checkin_date,
-           checkout_date - checkin_date AS nights
-       FROM reservations
-       WHERE checkout_date = current_date + 1;
-
-This query performs subtraction of one date from another (`checkout_date - checkin_date`) to calculate the number of nights the customer has stayed. It also performs addition (`current_date + 1`) to get tomorrow's date so that it lists all reservations that will be checking out tomorrow.
-
-Note: current_date is a postgres function that returns the current date.
-
-Also note that there are many ways to get the same result - you may explore those for yourself.
-
-You can also represent time intervals but the representations can be complicated and we shall not cover them here.
-
----
-## Exercise
-1.  Write a query to check that all booking dates are before their checkin dates
-2.  We plan to offer a discount of 10% on all Premier and Premier Plus rooms next month. How much would we gain on each room if occupancy rose by 5 nights over the month.
-3.  List all reservations for Aug 2018 and the number of nights booked.
-
----
-## Eliminating Duplicates
-"Which nationalities visit our hotel?":
-
-    SELECT country FROM customers;
-
-But how many values do you see returned for each country? If two customers come from a particular country that country will appear twice in the output. If more than two come from the same country then... But we only need to know the different countries.
-
-To see each country only once, use the keyword DISTINCT, as follows:
-
-    SELECT DISTINCT country FROM customers;
-
-The keyword DISTINCT must appear immediately after the keyword SELECT. If more than one column is selected then DISTINCT applies to the combined values of those columns.
-
----
-## Ordering the Returned Rows
-If you want to see the data in a specific order, e.g. "List all customers alphabetically by name within each country":
-
-    SELECT id, name, phone, email, country
-        FROM customers
-        ORDER BY country, name;
-
-You can can add ASC (ascending, the default) or DESC (descending) after each column name in the ORDER BY clause to control the direction of sorting.
-
-For example:
-
-    SELECT id, name, country, city
-        FROM customers
-        ORDER BY country DESC, city;
-
-This will sort the data into descending alphabetic order of country then ascending order of city name within each country. The output will look something like this:
-```
- id  |          name           |   country    |       city        
------+-------------------------+--------------+-------------------
-  28 | Kelvin Leong            | USA          | Allentown
-  96 | Juri Yoshido            | USA          | Boston
- 132 | Valarie Franco          | USA          | Boston
- 100 | Allen Nelson            | USA          | Brickhaven
-  46 | Miguel Barajas          | USA          | Brickhaven
-  43 | Leslie Taylor           | USA          | Brickhaven
-  37 | Julie King              | USA          | Bridgewater
- 130 | Sue Taylor              | USA          | Brisbane
- 124 | Steve Thompson          | USA          | Burbank
-  29 | Juri Hashimoto          | USA          | Burlingame
-  36 | Jerry Tseng             | USA          | Cambridge
-  70 | Marta Hernandez         | USA          | Cambridge
- 112 | Dan Lewis               | USA          | Glendale
-  52 | Mary Young              | USA          | Glendale
-  13 | Jean King               | USA          | Las Vegas
-  89 | Brian Chandler          | USA          | Los Angeles
-  97 | Dorothy Young           | USA          | Nashua
-  83 | William Brown           | USA          | Newark
- 120 | Violeta Benitez         | USA          | New Bedford
-  79 | Wing Huang              | USA          | New Bedford
- 116 | Leslie Murphy           | USA          | New Haven
-```
-
-Note: you can order by columns that are not returned by the query.
-
-### Limiting the Number of Rows
-You can reduce the number of rows returned by using the LIMIT clause at the end of the query:
-
-    SELECT id, name, phone, email, country
-      FROM customers
-      ORDER BY country, name
-      LIMIT 20;
-
-The LIMIT clause is not normally used without the ORDER BY clause - without the ORDER BY clause rows can be returned in any arbitrary sequence.
-
-Not all SQL implementations of SQL support LIMIT, some use TOP while Oracle uses ROWNUM.
-
----
-## Exercise
-
-1.  List the different room types and rates for all rooms avoiding duplicates.
-2.  List customers' names addresses and phone numbers in alphabetic order of names.
-3.  List customers' names, addresses, city and country in ascending order of country then reverse order of city within country.
-4.  List the room number, type and the cost of staying 5 nights in each of the top 15 most expensive rooms.
 
 ---
 ## Choosing the Rows
@@ -538,6 +412,139 @@ Note: PostgreSQL also has the non-standard operator ILIKE that can perform a cas
 5.  List all customers whose second name starts with 'M' (hint: there's a space before the second name)
 
 ---
+### Using SQL Functions
+You can use the built-in functions of SQL just as you can in JavaScript, but note that they are different (this is true of most programming languages) but there are also differences between SQL implementations.
+
+You use functions to change values, usually of columns, wherever you can use a column, for example, in the selected list of values:
+
+    SELECT name, length(name) AS namelen, upper(email)
+      FROM customers;
+
+This query also uses a column alias (namelen) to provide a meaningful column heading.
+
+Functions are available that operate on all different datatypes.
+
+Country names are mixed case so to make sure we always match regardless of the stored case we can use the `lower` function to find all customers from Manchester, UK:
+
+    SELECT * FROM customers
+       WHERE lower(country) = 'uk'
+         AND city = 'Manchester';
+
+List room rates after VAT increases to 23.5% (from 20%), but round to the nearest pound:
+
+    SELECT room_no, room_type, rate AS old_rate,
+           round(rate * 5/6 * 123.5/100) AS new_rate
+       FROM rooms;
+
+---
+### Date and Time in SQL
+In SQL dates and times are held in an internal format but are represented externally (when entering values and displaying them) as strings;
+*   Text date format:   'YYYY-MM-DD'    e.g. '2018-07-21' = 21 July 2018
+*   Time format:        'HH:mm:SS.ddd'  e.g. '14:32'
+*   Date/Time format:   'YYYY-MM-DD HH:mm:SS.ddd'   e.g. '2018-07-21 15:26:04'
+
+You can perform arithmetic on dates and times, for example:
+
+    SELECT cust_id, room_no, checkin_date,
+           checkout_date - checkin_date AS nights
+       FROM reservations
+       WHERE checkout_date = current_date + 1;
+
+This query performs subtraction of one date from another (`checkout_date - checkin_date`) to calculate the number of nights the customer has stayed. It also performs addition (`current_date + 1`) to get tomorrow's date so that it lists all reservations that will be checking out tomorrow.
+
+Note: current_date is a postgres function that returns the current date.
+
+Also note that there are many ways to get the same result - you may explore those for yourself.
+
+You can also represent time intervals but the representations can be complicated and we shall not cover them here.
+
+---
+## Exercise
+1.  Write a query to check that all booking dates are before their checkin dates
+2.  We plan to offer a discount of 10% on all Premier and Premier Plus rooms next month. How much would we gain on each room if occupancy rose by 5 nights over the month.
+3.  List all reservations for Aug 2018 and the number of nights booked.
+
+---
+## Eliminating Duplicates
+"Which nationalities visit our hotel?":
+
+    SELECT country FROM customers;
+
+But how many values do you see returned for each country? If two customers come from a particular country that country will appear twice in the output. If more than two come from the same country then... But we only need to know the different countries.
+
+To see each country only once, use the keyword DISTINCT, as follows:
+
+    SELECT DISTINCT country FROM customers;
+
+The keyword DISTINCT must appear immediately after the keyword SELECT. If more than one column is selected then DISTINCT applies to the combined values of those columns.
+
+---
+## Ordering the Returned Rows
+If you want to see the data in a specific order, e.g. "List all customers alphabetically by name within each country":
+
+    SELECT id, name, phone, email, country
+        FROM customers
+        ORDER BY country, name;
+
+You can can add ASC (ascending, the default) or DESC (descending) after each column name in the ORDER BY clause to control the direction of sorting.
+
+For example:
+
+    SELECT id, name, country, city
+        FROM customers
+        ORDER BY country DESC, city;
+
+This will sort the data into descending alphabetic order of country then ascending order of city name within each country. The output will look something like this:
+```
+ id  |          name           |   country    |       city        
+-----+-------------------------+--------------+-------------------
+  28 | Kelvin Leong            | USA          | Allentown
+  96 | Juri Yoshido            | USA          | Boston
+ 132 | Valarie Franco          | USA          | Boston
+ 100 | Allen Nelson            | USA          | Brickhaven
+  46 | Miguel Barajas          | USA          | Brickhaven
+  43 | Leslie Taylor           | USA          | Brickhaven
+  37 | Julie King              | USA          | Bridgewater
+ 130 | Sue Taylor              | USA          | Brisbane
+ 124 | Steve Thompson          | USA          | Burbank
+  29 | Juri Hashimoto          | USA          | Burlingame
+  36 | Jerry Tseng             | USA          | Cambridge
+  70 | Marta Hernandez         | USA          | Cambridge
+ 112 | Dan Lewis               | USA          | Glendale
+  52 | Mary Young              | USA          | Glendale
+  13 | Jean King               | USA          | Las Vegas
+  89 | Brian Chandler          | USA          | Los Angeles
+  97 | Dorothy Young           | USA          | Nashua
+  83 | William Brown           | USA          | Newark
+ 120 | Violeta Benitez         | USA          | New Bedford
+  79 | Wing Huang              | USA          | New Bedford
+ 116 | Leslie Murphy           | USA          | New Haven
+       . . .
+```
+
+Note: you can order by columns that are not returned by the query.
+
+### Limiting the Number of Rows
+You can reduce the number of rows returned by using the LIMIT clause at the end of the query:
+
+    SELECT id, name, phone, email, country
+      FROM customers
+      ORDER BY country, name
+      LIMIT 20;
+
+The LIMIT clause is not normally used without the ORDER BY clause - without the ORDER BY clause rows can be returned in any arbitrary sequence.
+
+Not all SQL implementations of SQL support LIMIT, some use TOP while Oracle uses ROWNUM.
+
+---
+## Exercise
+
+1.  List the different room types and rates for all rooms avoiding duplicates.
+2.  List customers' names addresses and phone numbers in alphabetic order of names.
+3.  List customers' names, addresses, city and country in ascending order of country then reverse order of city within country.
+4.  List the room number, type and the cost of staying 5 nights in each of the top 15 most expensive rooms.
+
+---
 ## Summary
 In this lesson you have learned the use of databases and how relational databases are structured. You've also learned how to use basic single-table query commands in SQL and some of the special 'backslash' commands in `psql`. You have used the SELECT command to control the columns and values that are returned, the DISTINCT, ORDER BY and LIMIT clauses to control the order and numbers of rows returned and you've used the WHERE clause to choose the rows that you access.
 
@@ -555,6 +562,8 @@ After you have completed the w3schools tutorial parts mentioned above, use your 
 2.  Add new rooms, 501 and 502 as room type PENTHOUSE and set the room rate of each to the default value (as in the new room type).
 3.  Add a new room 503 as a PREMIER PLUS type similar to the other PREMIER PLUS rooms in the hotel.
 4.  Update the rate for room 503 to 143.00 to reflect its improved views over the city.
+
+For extra credit you could try the following:
 5.  Find the grand total revenue from all invoices and the average invoice total.
 6.  How many invoices have not yet been paid and what is the total owed?
 7.  Find the customer id, checkin and checkout dates for all unpaid invoices.
