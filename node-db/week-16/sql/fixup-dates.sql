@@ -22,6 +22,7 @@ $$ language plpgsql;
 
 select fixup_dates();
 
-update reservations set room_no = null where checkin_date > current_date;
+-- Removed from script for consistency with application
+-- update reservations set room_no = null where checkin_date > current_date;
 
 

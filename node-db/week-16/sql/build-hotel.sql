@@ -1,11 +1,11 @@
 -- build the cyfhotel database
 --
 
-drop table invoices;
-drop table reservations;
-drop table customers;
-drop table rooms;
-drop table room_types;
+drop table if exists invoices cascade;
+drop table if exists reservations cascade;
+drop table if exists customers cascade;
+drop table if exists rooms cascade;
+drop table if exists room_types cascade;
 
 \include_relative room_types.sql
 \include_relative rooms.sql
