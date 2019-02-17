@@ -1,8 +1,8 @@
 # More Queries
 ## Objectives
-*   Learn how to aggregate data over multiple rows
-*   Learn how to use aggregate values to restrict the results returned
+*   Learn how to aggregate data over multiple rows and use aggregate values to restrict the results
 *   Combine rows from different tables using JOIN
+*   Insert new rows, update existing rows and delete unwanted rows
 *   Use sub-queries to access multiple tables in a query
 ---
 ## Aggregate Functions
@@ -41,7 +41,7 @@ You can use the count(x) function to count non-null values:
 
     SELECT count(id) AS id_ct, count(postcode) AS post_ct
         FROM customers;
-     id_ct | post_ct 
+     id_ct | post_ct
     -------+---------
        133 |     126
     (1 row)
@@ -57,7 +57,7 @@ You can calculate aggregates over subsets of rows using the GROUP BY clause:
 
     SELECT count(*) FROM rooms
        GROUP BY room_type;
-     count 
+     count
     -------
         14
         14
@@ -72,7 +72,7 @@ The query calculated the counts correctly but we have no idea which room type ea
 
     SELECT room_type, count(*) FROM rooms
        GROUP BY room_type;
-     room_type    | count 
+     room_type    | count
     --------------+-------
      PREMIUM      |    14
      PREMIER      |    14
@@ -156,7 +156,7 @@ To join reservations and invoices in SQL:
        FROM reservations r JOIN
             invoices i ON (r.id = i.res_id);
 
-Notice: 
+Notice:
 
 The new keyword JOIN with ON (predicate)
 
@@ -268,7 +268,7 @@ sally.brown123@nowhere.com
 
 2.  Update your new customer records with address, city, country and post code details (you can make these up).
 3.  Delete all paid invoices dated more than one month ago.
-4.  Update a reservation that has no checkout date with a room number and a checkout date of 5 days after checkin (as you might when a customer checks in).
+4.  Update reservation id 33 with a new room number 303 and a checkout date of 5 days after checkin (as you might when a customer checks in).
 
 ---
 ## The Vexing Question of NULL
@@ -321,8 +321,7 @@ There are some functions that can operate on NULL values, especially the `ifnull
 ---
 ## Exercise
 1.  Which customers have not yet provided a phone number?
-2.  How many reservations do not have an allocated room number?
-3.  Update room 304 such that it does not have a room_type.
+2.  Update room 304 such that it does not have a room_type.
 
 ---
 ## Subqueries
@@ -376,7 +375,7 @@ Correlated subqueries use values from the outer query - in this case the subquer
 
 For example:
 
-    SELECT c.name, c.country, 
+    SELECT c.name, c.country,
            r.checkout_date - r.checkin_date as nights
       FROM customers c
       JOIN reservations r ON (r.cust_id = c.id)
