@@ -86,15 +86,15 @@ The help command is the entry point into the local copy of online documentation.
 ---
 ## Populate the Hotel Database
 Load the initial data (so that you can start practising) from the supplied scripts. You will need the following SQL script files:
-* build-hotel.sql
-* customers.sql
-* fixup-dates.sql
-* invoices.sql
-* reservations.sql
-* rooms.sql
-* room-types.sql
+* [build-hotel.sql](https://raw.githubusercontent.com/KeithBremer/syllabus/master/node-db/sql/build-hotel.sql)
+* [customers.sql](https://raw.githubusercontent.com/KeithBremer/syllabus/master/node-db/sql/customers.sql)
+* [fixup-dates.sql](https://raw.githubusercontent.com/KeithBremer/syllabus/master/node-db/sql/fixup-dates.sql)
+* [invoices.sql](https://raw.githubusercontent.com/KeithBremer/syllabus/master/node-db/sql/invoices.sql)
+* [reservations.sql](https://raw.githubusercontent.com/KeithBremer/syllabus/master/node-db/sql/reservations.sql)
+* [rooms.sql](https://raw.githubusercontent.com/KeithBremer/syllabus/master/node-db/sql/rooms.sql)
+* [room-types.sql](https://raw.githubusercontent.com/KeithBremer/syllabus/master/node-db/sql/room-types.sql)
 
-These can be downloaded from [SQL scripts](../sql), moved to your own directory then run using:
+These can be downloaded by choosing the Save As option for each file link above and placed in your own directory, then run using:
 ```
     $ cd path/to/scripts
     $ psql
