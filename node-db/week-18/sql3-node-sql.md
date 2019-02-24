@@ -8,23 +8,30 @@
 * Create endpoints to execute queries that return one row
 * Create endpoints to insert new data into a table
 * Create endpoints to delete a row from a table
+* Create endpoints to update values in an existing row
 
 ---
 ## Setting Up the Environment
-1.  If not already done, fork and clone the repository: https://github.com/CodeYourFuture/cyf-hotel-db
-2.  If necessary use `npm install` to install dependencies.
-3.  Install Postman
-    1. Linux: Search in Ubuntu Software for Postman then install
-    2. Mac: download & extract zip file to folder ???
-    3. Windows: Download & run .exe file
+1.  Create a directory for a new node project, say, `hotel-db`.
+2.  Use the `npm init` command to initialise the project.
+    1. Change the entry point from `index.js` to `server.js`.
+    2. Provide a description (optional).
+3.  Install required packages:
+    1. `npm install express --save`
+    2. `npm install body-parser --save`
+4.  Create an empty file, `server.js` (hint: use `touch server.js`)
+5.  Add the minimum JavaScript required for a basic server:
+```
+    const express = require("express");
+    const app = express();
 
-For Mac & Win see https://www.getpostman.com/apps
+    // Your code goes here…
 
-### What is Postman?
-*   Postman simulates a browser environment by emulating the API calls made from HTML/Javascript to the server
-*   It gives you a view of the messages received from the server in their raw form
-*   It’s great for testing and debugging
-*   It doesn’t render the results - that comes later… (See React sessions)
+    app.listen(3000, function() {
+    console.log("Server started on port 3000.");
+    });
+```
+Obviously the comment `// Your code goes here...` is optional.
 
 ---
 ## Preamble
@@ -34,18 +41,18 @@ From the terminal, log in to your database with `psql` and issue the SQL command
 
     ALTER ROLE <your user name> PASSWORD '<password>';
 
-Note: \<your user name\> is your Ubuntu user; the \<password\> can be anything you choose. Quit from psql using the \q command.
+Note: &lt;your user name> is your O/S user; the &lt;password> can be anything you choose. Quit from psql using the \q command.
 
-Install the Nodejs support for postgres:
+Install the Nodejs support for postgres (from the terminal in your project directory):
 
     npm install pg --save
 
-Edit your class2.js API file so that you can access your database. First add these lines near the top of the file:
+Edit your server.js file so that you can access your database. First add these lines near the top of the file:
 
     const Pool = require('pg').Pool;
 
     const conn = new Pool({
-      user: '<yourUserName>',      // Your Ubuntu user name
+      user: '<yourUserName>',      // Your O/S user name
       host: 'localhost',
       database: '<yourUserName>',  // ... and again.
       password: '<password>',      // The one you gave yourself above
@@ -64,11 +71,11 @@ When you've provided the preamble above you can execute SQL using:
     });
 
 ## Exercise
-Check that you can connect and run SQL from node. Create a file, say, sqltest.js containing something like this:
+Check that you can connect and run SQL from node. Create a file, say, sqltest.js containing something like this (note: this does not use express):
 
-    const Pool = require('pg').Pool;
+    const Pool = require('pg').Pool;  // initialise a connection pool
 
-    const conn = new Pool({
+    const db = new Pool({          // establish a new connection
       user: '<yourUserName>',      // Your Ubuntu user name
       host: 'localhost',
       database: '<yourUserName>',  // ... and again.
@@ -83,9 +90,16 @@ Check that you can connect and run SQL from node. Create a file, say, sqltest.js
       console.log(result);
     });
 
-This should return a complex object that contains a `rows` element with the details for customer 32, as follows:
+You can run the command from the terminal using:
 
-    ...
+    node sqltest.js
+
+This should display a complex object that contains a `rows` element with the details for customer 32, as follows:
+
+    Result {
+    command: 'SELECT',
+    rowCount: 1,
+    oid: null,
     rows:
      [ { id: 32,
         name: 'Keith Franco',
@@ -104,19 +118,18 @@ Change your code so that it logs each returned column to a separate line along w
 
 ---
 ## Starting with SQL in Express
-Examine the file `class2.js` in the api directory. You should have already added the "preamble" discussed earlier to enable a connection to your database.
 
-We need to modify the code for the `/customers` endpoint so that it returns all customers; the code in `class2.js` would be:
+We need to create the code for the `/customers` endpoint so that it returns all customers; the code in `server.js` would be:
 
-    router.get("/customers", function(req, res) {
+    app.get("/customers", function(req, res) {
       var sql = "SELECT name, email, phone," +
                 " address, city FROM customers";
-      conn.query(sql, function (err, result) {
+      db.query(sql, function (err, result) {
         result.rows.forEach(function (row) {
           console.log(row.name, row.email, row.phone,
                     row.address, row.city);
         });        // ends forEach...
-      });          // ends conn.query callback function
+      });          // ends db.query callback function
     });
 
 Looking at the details of the above, we see:
@@ -128,9 +141,9 @@ This is fairly obvious - it's a variable `sql` that is set to a string value rep
 
 Then there is:
 
-      conn.query(sql, function (err, result) {
+      db.query(sql, function (err, result) {
 
-This uses the `conn` connection initialised in the preamble to issue the SQL command in `sql` to the database then provides a callback function to process the resulting data.
+This uses the `db` database connection initialised in the preamble to issue the SQL command in `sql` to the database then provides a callback function to process the resulting data.
 
         result.rows.forEach(function (row) {
           console.log(row.name, row.email, row.phone,
@@ -146,7 +159,7 @@ Start (or restart) the server.js file (in a terminal):
 
 In the browser, enter the URL for the customers endpoint:
 
-    http://localhost:8080/api/customers
+    http://localhost:3000/customers
 
 Back to the terminal - can you see the list of customers logged to the console?
 
@@ -157,7 +170,7 @@ If not you need to correct any mistakes (ask your mentor if you are stuck).
 To be useful the endpoint must return the results to the browser. We’re going to use JSON. Edit the endpoint:
 
     ...
-    conn.query(sql, function (err, rows) {
+    db.query(sql, function (err, rows) {
       rows.forEach(function (row) {
         console.log(row.name, row.email, ...);
       });
@@ -168,6 +181,8 @@ To be useful the endpoint must return the results to the browser. We’re going 
     ...
 
 Note: for the moment we'll leave the console log of records in place, in case there's a problem with the new code. It then shows we've run the callback function even if the JSON isn't returned.
+
+Restart the server using `^C` to stop the previous server and `node server.js` to restart it with the new code.
 
 In the browser reload the customers endpoint page. The previous time you did this the page was just blank - you should now see the returned JSON structure with details of all customers.
 
@@ -184,7 +199,7 @@ You can use the main Postman window (below) to initiate requests to and handle r
 
 Ensure that the HTTP request method is set to GET (if not then change it using the drop-down list).
 
-Enter the customers endpoint url (http://localhost:8080/api/customers) in the field that has "Enter request URL" initially.
+Enter the customers endpoint url (http://localhost:3000/customers) in the field that has "Enter request URL" initially.
 
 Click the blue Send button.
 
@@ -212,11 +227,9 @@ If we know the id of the customer we can query for just one.
 
 Add code for a new endpoint: /customers/:id
 
-    conn.query("/customers/:id", function(req, res) {
+    app.get("/customers/:id", function(req, res) {
       // TODO: add code here
     });
-
-Note: this endpoint has already been provided as above in class2.js - you just need to add the code for the body.
 
 First, get the id from the request:
 
@@ -224,7 +237,7 @@ First, get the id from the request:
 
 Next, use the id in the SQL query:
 
-    conn.query("SELECT … FROM customers WHERE id = $1", [id],
+    db.query("SELECT … FROM customers WHERE id = $1", [id],
                 function (err, row){
         // we’ll add code here next ...
     });
@@ -246,26 +259,25 @@ Note that we return only the first element (`rows[0]`) of the rows array because
 
 So now the full endpoint looks like this:
 
-    router.get('/customers/:id', function(req, res) {
-        // TODO add code here
+    app.get('/customers/:id', function(req, res) {
         var id = parseInt(req.params.id);
         var sql = "SELECT id, name, email, phone," +
                     " address, city FROM customers WHERE id = $1";
-        conn.query(sql, [id], function (err, result) {
+        db.query(sql, [id], function (err, result) {
             res.status(200).json({
                 customer: result.rows[0]
             });
         });
     });
 
-Use Postman to check the response, the URL for customer id = 3 is: `http://localhost:8080/api/customers/3`
+Use Postman to check the response, the URL for customer id = 3 is: `http://localhost:3000/customers/3`
 
 ---
 ## Exercise
 1.  Make sure you have defined the endpoints for:
     1.  Getting all customers
     2.  Getting a single customer by id
-2.  Using a method similar to the one used to get a customer by id, define an endpoint that can get customers by matching part of the name (e.g. endpoint /customers-by-name).
+2.  Using a method similar to the one used to get a customer by id, define an endpoint that can get customers by matching part of the name (e.g. endpoint /customers-by-name/:name).
 
 > Remember there may be more than one matching row!
 
@@ -279,18 +291,18 @@ To insert rows into our tables we use a POST instead of a GET method. We define 
         // add code here to insert row...
     });
 
-The browser sends the values for the new row as JSON in req.fields. We can extract them using body-parser into variables:
+The browser sends the values for the new row as JSON. By using body-parser we can extract them from `req.body` into variables:
 
     var nam = req.body.name;
     var phn = req.body.phone;
     var eml = req.body.email;
     var add = req.body.address; // ...etc.
 
-(Note: for formidable use `req.fields` instead of `req.body`)
+(Note: if using the "formidable" middleware, use `req.fields` instead of `req.body`)
 
 Issue an SQL INSERT command with values and use $n placeholders for inserted values, for example:
 
-    conn.query("INSERT INTO customers " +
+    db.query("INSERT INTO customers " +
                 "(name, email, phone, address) " +
                 "VALUES ($1, $2, $3, $4)",
             [nam, eml, phn, add],
@@ -298,12 +310,13 @@ Issue an SQL INSERT command with values and use $n placeholders for inserted val
             // callback code goes here
         });
 
-We use the conn.query method even though this isn't strictly a query - think of query as any form of SQL for this purpose.
+We use the db.query method even though this isn't strictly a query - think of query as any form of SQL for this purpose.
 
 ### What Can We Do After an Insert?
-*   We should staKeithrt checking for errors! Not just for inserts!
+*   We should start checking for errors! Not just for inserts!
 *   If the table uses an autoincrementing PK we might return the value (that could be useful).
 *   We could console.log the inserted data
+
 And so forth...
 
 #### Check for Errors
@@ -311,7 +324,7 @@ We should really provide error handling in each endpoint to deal with database e
 
 The callback function always includes an error parameter as the first parameter. It’s undefined if the command succeeded, or a message if an error occurred.
 
-    do.something(..., function (err) {
+    db.query(..., function (err) {
         if (err == null) {
             // do stuff for success
         } else {
@@ -323,7 +336,7 @@ In this example do.something stands for any of the database actions such as conn
 
 #### Return the Primary Key Value for an Insert
 With auto-generated primary keys it might be helpful for the browser to be given the value of the new key after an insert.  In postgres the simplest way to do this is by modifying the INSERT statement, as follows:
-GET
+
     INSERT INTO table (cola, colb, colc, ...)
         VALUES (expr1, expr2, expr3, ...)
         RETURNING id;
@@ -332,29 +345,34 @@ The RETURNING clause is not standard SQL but is very useful in this context in P
 
 In the case of SQL executed through Node and Javascript we need to add the RETURNING clause to the INSERT statement then pick up the value from the result of the query. That looks something like this:
 
-    conn.query("INSERT INTO customers " +
+    db.query("INSERT INTO customers " +
                 "   (name, email, phone, address) " +
                 " VALUES ($1, $2, $3, $4)" +
                 " RETURNING id",
             [nam, eml, phn, add],
         function(err, result) {
+          if (err == null) {
             var newId = result.rows[0].id;
             ...
+          }
         })
 
 ### INSERT - Putting it All Together
 
     router.post("/customers/", function (req.res) {
-        var nam = req.fields.name;
-        var eml = req.fields.email;
-        var phn = req.fields.phone;
+        var nam = req.body.name;
+        var eml = req.body.email;
+        var phn = req.body.phone;
+        var add = req.body.address;
         // etc...
-        conn.query("INSERT INTO customers (name, email, phone)" +
-                   "  VALUES ($1, $2, $3) RETURNING id",
-            [nam, phn, eml], function(err, result) {
+        db.query("INSERT INTO customers (name, email, phone, address)" +
+                   "  VALUES ($1, $2, $3, $4)" +
+                   "  RETURNING id",
+              [nam, phn, eml, add],
+          function(err, result) {
             if (err == null) {
                 var newId = result.rows[0].id;  //get the PK
-                console.log("New customer id = ${rowid}");
+                console.log("New customer id = ${newId}");
                 res.status(200).json({lastId: newId});  // return the PK
             } else {
                 res.status(500).json({error: err});
@@ -365,7 +383,7 @@ In the case of SQL executed through Node and Javascript we need to add the RETUR
 To test the Insert command from Postman:
 1. Change the method to POST
 2. Change the 'Params' just below the method to Body
-3. On the line below select to 'raw'
+3. On the line below select 'raw'
 4. Select JSON(application/json) instead of Text (dropdown list)
 5. Type in the JSON for the new customer in the input area. This should look like:
 ```
@@ -373,8 +391,7 @@ To test the Insert command from Postman:
         "name": "Fred Bloggs",
         "email": "fred.bloggs@wxyz.net",
         "phone": "+44 7890 123456",
-        "city": "Manchester",
-        "country": "UK"
+        "address": "123 High Street"
     }
 ```
 6. Click Send then check the Params tab for the new id
@@ -383,7 +400,7 @@ Note: this would normally be done in React by JS code to send via Ajax after com
 
 ---
 ### Exercise
-Using the same approach we used for customers, write an endpoint to insert new reservations to the database. Remember that a reservation reserves a room for a customer for a specified date or date range and for a number of guests.
+Using the same approach we used for customers, you can write an endpoint to insert new reservations to the database. Remember that a reservation reserves a room for a customer for a specified date or date range and for a number of guests.
 1.  Add error checking to all your endpoints.
 2.  Create the endpoint using the POST method for endpoint /reservations.
 3.  Ensure that you provide all the needed values in the form data.
@@ -395,7 +412,7 @@ To delete rows we must provide some way to identify the row (or rows) that we wi
 
 Create an endpoint for customers using the DELETE method and passing a parameter for the id of the customer to be deleted, as below:
 
-    router.delete("/customers/:id", function(req, res) {
+    app.delete("/customers/:id", function(req, res) {
       // TODO add code here
       });
 

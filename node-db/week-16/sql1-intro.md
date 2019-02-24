@@ -102,6 +102,7 @@ These can be downloaded by choosing the Save As option for each file link above 
     cyf=# \include build-hotel.sql
     ...
 ```
+You only run the `\include build-hotel.sql` script - this then runs each of the others in the correct sequence.
 
 Note: Replace `path/to/scripts` with your specific path to the script files.
 
@@ -111,13 +112,12 @@ You can list all the available tables using the `\dt` command:
             List of relations
     Schema |     Name      | Type  | Owner
     --------+---------------+-------+-------
-    public | charge_types  | table | keith
     public | customers     | table | keith
     public | invoices      | table | keith
     public | reservations  | table | keith
     public | room_types    | table | keith
     public | rooms         | table | keith
-    (6 rows)
+    (5 rows)
 ```
 
 ---
@@ -349,7 +349,7 @@ For example:
 
 LIKE can be inverted using `a NOT LIKE b`
 
-If you need to match for a string that includes one of the wildard characters (% or _) you can use the 'escape' character, which defaults to '\' (backslash). For example:
+If you need to match for a string that includes one of the wildard characters (% or _) you can use the 'escape' character, which defaults to '\\' (backslash). For example:
 
 `str LIKE '% discount = 5\% %'`    matches any value in str that contains ' discount = 5% '
 
@@ -363,8 +363,8 @@ Note: PostgreSQL also has the non-standard operator ILIKE that can perform a cas
 ## Exercise
 1.  Which customers are from Norway?
 2.  Which rooms can accommodate more than two people?
-3.  Which invoices are dated after 5th July 2018?
-4.  How would July invoices change if we gave a discount of 15%
+3.  Which invoices are dated after one month ago?
+4.  How would last month's invoices change if we gave a discount of 15%
 5.  List all customers whose second name starts with 'M' (hint: there's a space before the second name)
 
 ---
@@ -418,7 +418,7 @@ You can also represent time intervals but the representations can be complicated
 ## Exercise
 1.  Write a query to check that all booking dates are before their checkin dates
 2.  We plan to offer a discount of 10% on all Premier and Premier Plus rooms next month. How much would we gain on each room if occupancy rose by 5 nights over the month.
-3.  List all reservations for Aug 2018 and the number of nights booked.
+3.  List all reservations for this month and the number of nights booked.
 
 ---
 ## Eliminating Duplicates
@@ -509,17 +509,23 @@ You can now go on to more complex query constructs including joins and subquerie
 ---
 ## Homework
 1.  If you haven't completed all the exercises from this lesson then do that first.
-2.  In your browser go to https://www.w3schools.com/sql/default.asp and try the SQL tutorial.
-3.  Recap material that we have already covered but some topics will be new. Try to make sure you recap all we have done so far.
-4.  Look at Insert, Update and Delete, Null values, Min and Max, Count, Avg, Sum, Joins and Inner Join. If you have time please do look at other sections of the tutorial as well.
+2.  Study the build-hotel.sql and the other provided scripts used to create the sample database.
+3.  In your browser go to https://www.w3schools.com/sql/default.asp and try the SQL tutorial.
+4.  Recap material that we have already covered but some topics will be new. Try to make sure you recap all we have done so far.
+5.  Look at Insert, Update and Delete, Null values, Min and Max, Count, Avg, Sum, Joins and Inner Join. If you have time please do look at other sections of the tutorial as well.
 
 After you have completed the w3schools tutorial parts mentioned above, use your knowledge to insert some new data into the room_types and rooms tables, as follows:
+
 1.  Make a new room type of PENTHOUSE with a default rate of £185.00
 2.  Add new rooms, 501 and 502 as room type PENTHOUSE and set the room rate of each to the default value (as in the new room type).
 3.  Add a new room 503 as a PREMIER PLUS type similar to the other PREMIER PLUS rooms in the hotel.
 4.  Update the rate for room 503 to 143.00 to reflect its improved views over the city.
 
 For extra credit you could try the following:
+
 5.  Find the grand total revenue from all invoices and the average invoice total.
 6.  How many invoices have not yet been paid and what is the total owed?
 7.  Find the customer id, checkin and checkout dates for all unpaid invoices.
+
+---
+### End of Lesson
