@@ -130,7 +130,7 @@ It can be confusing at first knowing whether to use a WHERE clause or a HAVING c
 
 Use the WHERE clause when values you want to test are available without having to use any aggregate functions (e.g. plain column values).
 
-Use HAVING when the valuues you want to test are the results of aggregate functions (e.g. count(*), sum(amount), min(x), etc...).
+Use HAVING when the values you want to test are the results of aggregate functions (e.g. count(*), sum(amount), min(x), etc...).
 
 ---
 ## Exercise
