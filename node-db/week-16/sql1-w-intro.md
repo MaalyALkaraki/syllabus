@@ -7,6 +7,20 @@ We shall use PostgreSQL - a widely used relational database. It's open-source an
 
 If you have Windows as your operating system you can install PostgreSQL from the installer executable. Download this from https://www.postgresql.org/download/windows/ but make sure you choose PostgreSQL version 10 and the appropriate platform for your PC (64 or 32-bit). Once you have downloaded the installer then run the file (postgresql-10.6-1-windows-x64.exe or similar). The installer prompts for various information as it initialises and you can mostly take the default values. Make a note of the installation folder when prompted for it - you don't need to change it. You must, however, provide a password for the postgres user - make sure you remember this password!
 
+If prompted to configure StackBuilder at the end of installation, just click Cancel - we won't need it.
+
+Before you can use any of the command line tools you must first add the PostgreSQL software to your PATH variable.  This is a bit convoluted on Windows so please go carefully:
+1.  In the File Explorer find This PC and right-click on it.
+2.  In the menu select Properties
+3.  In the properties dialog (Control Panel) click on the Advanced system settings option (on left hand side)
+4.  In the System Properties dialog, Advanced tab, click the Environment Variables button near the bottom of the window
+5.  In the Environment Variables window, in the top half (User variables for ...) select the Path variable then click Edit
+6.  In the Edit environment variable window first check that the PostgreSQL pathname hasn't been added already by the installer (if it has you can cancel out of all these dialogs)
+7.  To add the PostgreSQL pathname you must click the New button on the right then type (or paste) the path `C:\Program Files\PostgreSQL\10\bin` into the new entry space. (Note: if you installed version 11 then the pathname will be slightly different - check using File Explorer)
+8.  Click the OK button in each dialog to exit back to the Control Panel window, which you can just close normally
+
+If the next step (trying the `psql` command) fails you may need to log out and log back in again to apply the new PATH variable.
+
 The default installation provides only one user and no databases. To verify your installation open the Command Prompt and enter the following command:
 ```
     C:\...> psql -U postgres --version
