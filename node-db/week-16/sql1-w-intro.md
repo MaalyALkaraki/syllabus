@@ -42,7 +42,7 @@ To create a database and your new user you'll have to use the postgres user agai
 ```
 You must supply the password for the `postgres` user for each of these commands.
 
-REMEMBER &lt;your user name> is the username you use to log in to Windows.
+**REMEMBER** &lt;your user name> is the username you use to log in to Windows.
 
 You need to modify a configuration file to allow passwordless logins from your own PC. For this you need to locate the file `pg_hba.conf` in the installation directory's `data` subdirectory. For example, if the installation directory is:
 

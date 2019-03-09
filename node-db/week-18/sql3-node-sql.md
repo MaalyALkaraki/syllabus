@@ -51,7 +51,7 @@ Edit your server.js file so that you can access your database. First add these l
 
     const Pool = require('pg').Pool;
 
-    const conn = new Pool({
+    const db = new Pool({
       user: '<yourUserName>',      // Your O/S user name
       host: 'localhost',
       database: '<yourUserName>',  // ... and again.
@@ -63,7 +63,7 @@ Edit your server.js file so that you can access your database. First add these l
 When you've provided the preamble above you can execute SQL using:
 
     . . .
-    conn.query('<put SQL here>', function(err, rows) {
+    db.query('<put SQL here>', function(err, rows) {
       if (err) {
         throw err;
       }
@@ -83,7 +83,7 @@ Check that you can connect and run SQL from node. Create a file, say, sqltest.js
       port: 5432,
     });
 
-    conn.query('SELECT * FROM customers WHERE id = 32', (err, result) => {
+    db.query('SELECT * FROM customers WHERE id = 32', (err, result) => {
       if (err) {
         throw err;
       }
@@ -155,7 +155,8 @@ Is the body of the callback function which iterates over all the elements of the
 ### Check the Endpoint Works
 Start (or restart) the server.js file (in a terminal):
 
-    $ node server.js
+    $ ^C              # this terminates the server if running
+    $ node server.js  # restart the server
 
 In the browser, enter the URL for the customers endpoint:
 
@@ -182,7 +183,7 @@ To be useful the endpoint must return the results to the browser. We’re going 
 
 Note: for the moment we'll leave the console log of records in place, in case there's a problem with the new code. It then shows we've run the callback function even if the JSON isn't returned.
 
-Restart the server using `^C` to stop the previous server and `node server.js` to restart it with the new code.
+Restart the server using `^C` to stop the previous server and then type `node server.js` to restart it with the new code.
 
 In the browser reload the customers endpoint page. The previous time you did this the page was just blank - you should now see the returned JSON structure with details of all customers.
 
@@ -237,7 +238,7 @@ First, get the id from the request:
 
 Next, use the id in the SQL query:
 
-    db.query("SELECT … FROM customers WHERE id = $1", [id],
+    db.query("SELECT ... FROM customers WHERE id = $1", [id],
                 function (err, row){
         // we’ll add code here next ...
     });
@@ -248,7 +249,7 @@ If you need to provide more than one value you can use placeholders $2, $3, $4, 
 
 Finally, we return the row from the query:
 
-    conn.query("SELECT … FROM customers WHERE id = $1", [id],
+    db.query("SELECT ... FROM customers WHERE id = $1", [id],
         function (err, result){
         res.status(200).json({
             customer: result.rows[0]
@@ -332,7 +333,7 @@ The callback function always includes an error parameter as the first parameter.
         };
     });
 
-In this example do.something stands for any of the database actions such as conn.query. Calling res.status with parameter 500 signals an error response to the browser, terminates the endpoint action and sends the error message as JSON so the browser can display it or take some other action.
+ Calling res.status with parameter 500 signals an error response to the browser, terminates the endpoint action and sends the error message as JSON so the browser can display it or take some other action.
 
 #### Return the Primary Key Value for an Insert
 With auto-generated primary keys it might be helpful for the browser to be given the value of the new key after an insert.  In postgres the simplest way to do this is by modifying the INSERT statement, as follows:
@@ -359,7 +360,7 @@ In the case of SQL executed through Node and Javascript we need to add the RETUR
 
 ### INSERT - Putting it All Together
 
-    router.post("/customers/", function (req.res) {
+    app.post("/customers/", function (req.res) {
         var nam = req.body.name;
         var eml = req.body.email;
         var phn = req.body.phone;
@@ -442,6 +443,41 @@ End the transaction with either:
 or:
 
     ROLLBACK;    -- undo changes since last BEGIN
+
+---
+### Exercise - Using Transactions
+1.  In the psql command line tool, issue the commands:
+
+```
+    BEGIN TRANSACTION;
+    UPDATE reservations SET room_no = 310 WHERE id = 10;
+```
+Now open a new terminal session (leaving the first still open) and in psql do:
+
+```
+    SELECT * FROM reservations WHERE id = 10;
+```
+What do you notice about room_no? Leave this session open as well.
+2.  Go back to the first terminal session (which should still be open in psql). Issue the following command:
+
+```
+    COMMIT;
+```
+then return to the second terminal session and requery reservation 10. What has changed?
+3.  Repeat step 1 of this exercise (use the same two terminal sessions if you wish).
+4.  In the second terminal session issue the command:
+
+```
+    UPDATE reservations SET room_no = 304 WHERE id = 10;
+```
+What happens?
+5.  Leaving the second terminal open, go back to the first session and issue the command:
+```
+    ROLLBACK;
+```
+Now check what has happened in the second session. Why do you think that happened? Requery reservation id 10 and check the room number.
+
+---
 ### ACID Rules
 ACID is a mnemonic for:
 
@@ -453,10 +489,178 @@ incomplete changes
 * Durable - committed changes are permanent (even after
 power failure)
 
-### Exercise
-Change all your endpoints that change the database (that is, use INSERT, UPDATE or DELETE) such that each of the changes take place in the context of a transaction.
+---
+### Implementing Transactions in Nodejs/express
+This is rather more complicated than when using psql. A transaction must always be started and completed inside the same database connection. So far we've cheated a bit and used a shortcut that only accepts a single SQL command - the `db.query(...)` call.
 
-NOTE: This is not strictly necessary, since all the changes we have made involved only a single statement each time.  However, if the app changed at some future date to include other actions, these might need the transaction mechanism to make them safe.
+To use a transaction we must use a different mechanism because we need to issue at least three commands (BEGIN TRANSACTION, SQL to change data, COMMIT or ROLLBACK).
+
+For example, if we need to change the room number for a reservation in a transaction then, in `psql`, we use the SQL:
+
+    BEGIN TRANSACTION;
+    UPDATE reservations SET room_no = 213 WHERE id = 34;
+    COMMIT;
+
+In a corresponding endpoint we must create a new connection that can process more than one SQL command:
+
+    db.connect(function (err, client, release) => {
+      if (err) {
+        // handle error when establishing connection
+      }
+      // execute multiple SQL commands here
+    });
+
+The multiple SQL commands are, of course, asynchronous, so we need to nest the SQL queries inside the callback functions, one per SQL command. We also need to change the function call to execute SQL inside the db.connect call, as follows:
+
+    db.connect(function (err, client, release) => {
+      if (err) {
+        // handle error when establishing connection
+      }
+      // execute multiple SQL commands here
+      client.query("BEGIN TRANSACTION", function(err) {
+        if (err == null) {
+          console.log("Done BEGIN TRANSACTION");
+          // etc...
+    });
+
+Subsequent SQL commands must be done inside the previous SQL command's callback so that we can guarantee the sequence of operations. So, if the next SQL command is an UPDATE, it would appear as follows:
+
+    db.connect(function (err, client, release) => {
+      if (err) {
+        // handle error when establishing connection
+      }
+      // execute multiple SQL commands here
+      client.query("BEGIN TRANSACTION", function(err) {
+        if (err == null) {
+          console.log("Done BEGIN TRANSACTION");
+          client.query("UPDATE customers SET email = $2 WHERE id = $1",
+                function(err) {
+            if (err == null) {
+              // etc...
+            }
+          }
+    });
+
+And so on...
+
+### Locking
+
+Whenever you make a change to a row or rows the RDBMS locks the affected rows (some lock entire tables, others lock the whole database!) These locks prevent another user making conflicting changes at the same time.
+
+You can take out locks explicitly in SQL, especially row locks when you execute a `SELECT` command. The syntax for this new feature is quite simple:
+
+    SELECT ...
+      FROM ...
+      WHERE ...
+      FOR UPDATE;
+
+You just add the `FOR UPDATE` clause to the end of the`SELECT` and each of the rows returned is locked. Make sure that:
+1. You don't lock very large numbers of rows at a time
+2. The rows belong to just one table
+
+Locks should be held for the shortest possible length of time to avoid causing other users delays.
+
+### Optimistic Locking
+
+Let's look at a multi-user scenario:
+
+| User 1 | User 2 |
+| --- | --- |
+| Query row x | |
+| User looks at row x | Query row x |
+| Change row x on screen | User looks at row x |
+| time passes... | User changes row x on screen |
+| User hits Submit | time passes... |
+| DB changes row x | time passes... |
+| | User hits Submit |
+
+**Now what happens ?!?!** Not necessarily what we want...
+
+What could we do about this? How about locking the row when the user makes the initial query? User 2 must wait and can't work (bad) until User 1 completes their changes and when User 2 eventually gets the row it includes the changes made by User 1 (good). Unfortunately this won't work in NodeJS because when the user hits Submit they start a completely new session.  All previously obtained locks have been lost.
+
+We need another way.
+
+One approach could have the application (browser) sending both the original row and the changed row when the user hits Submit. The browser must keep a copy of the original row but allow the user to make changes to a second copy.
+
+The server then performs a more complex transaction to perform the update. First initiate a transaction (if necessary) with `BEGIN TRANSACTION`. Next re-query the row and lock it at the same time (`SELECT ... FOR UPDATE`) before comparing the row with the original row sent by the browser. If the row and original copy are the same then no other user has changed it and we can then issue an `UPDATE` to apply the changes and finally `COMMIT` to make the changes permanent.
+
+For example, code to update customer's email address:
+
+    app.put('/customers/email/:id', function(req, res) {
+        // EXPECTED JSON Object:
+        //  { original: {
+        //      email: 'fred@bloggs.org',
+        //    },
+        //    update: {
+        //      email: 'fred.bloggs@bloggs.com'
+        //    }
+        //  }
+
+    var sql1 = "SELECT email " +
+              "FROM customers " +
+              "WHERE id = $1 " +
+              "FOR UPDATE";
+    var sql2 = "UPDATE customers " +
+              "SET email = $2 " +
+              "WHERE id = $1"
+
+    client.query("BEGIN TRANSACTION", function(err) {
+      if (err == null) {
+        console.log("Done BEGIN TRANSACTION");
+        client.query(sql1, [custId], function(err, result) {
+          if (err == null) {
+            console.log("Done SELECT ... FOR UPDATE");
+            if (objEqual(result.rows[0], req.body.original)) {
+              console.log("Done - record matches");
+              client.query(sql2,
+                [custId, uemail],
+                function(err) {
+                  if (err == null) {
+                    console.log("Done UPDATE...");
+                    client.query("COMMIT", function(err) {
+                      if (err == null) {
+                        console.log("Done COMMIT");
+                        release();
+                        res.status(200).json({done: "Update completed."});
+                        return;
+                      } else {
+                        console.log("ERROR in COMMIT: ${err}");
+                        client.query("ROLLBACK");
+                        release();
+                        return res.status(500).json({error: err});
+                      }
+                    })
+                  } else {
+                    checkErr(err, "UPDATE");
+                    return;
+                  }
+                })
+            } else {
+              console.log("Row modified by another user - try again");
+              release();
+              res.status(400).json({error: "Row modified by another user - try again"});
+              return;
+            }
+          } else {
+            checkErr(err, "SELECT FOR UPDATE");
+            return;
+          }
+        })
+      } else {
+        checkErr(err, "BEGIN TRANSACTION");
+        return;
+      }
+    });
+
+As you can see the above is much more complex than the simple calls to `db.query()` in our previous endpoint code. The above snippet doesn't show the extra functions, `objEqual` and `checkErr` that are used to simplify the main part of the code.
+
+Rather than comparing the whole row another approach adds a column to the table, say, `row_version`, that is incremented each time the row is updated. The browser only needs to send back the original row's version rather than the whole row. If another user has changed the row then the version number will have been updated and the browser's copy will be different.
+
+---
+### Exercise
+Change all your endpoints that change the rows in the database (that is, use UPDATE or DELETE) such that each of the changes take place in the context of a transaction. Use optimistic locking to ensure multi-user consistency.
+
+You can choose whether to add a row_version column or compare the whole row.
 
 ---
 ## Homework
