@@ -92,7 +92,7 @@ Load the initial data (so that you can start practising) from the supplied scrip
 * [invoices.sql](https://raw.githubusercontent.com/KeithBremer/syllabus/master/node-db/sql/invoices.sql)
 * [reservations.sql](https://raw.githubusercontent.com/KeithBremer/syllabus/master/node-db/sql/reservations.sql)
 * [rooms.sql](https://raw.githubusercontent.com/KeithBremer/syllabus/master/node-db/sql/rooms.sql)
-* [room-types.sql](https://raw.githubusercontent.com/KeithBremer/syllabus/master/node-db/sql/room_types.sql)
+* [room_types.sql](https://raw.githubusercontent.com/KeithBremer/syllabus/master/node-db/sql/room_types.sql)
 
 These can be downloaded by choosing the Save As option for each file link above and placed in your own directory, then run using:
 ```
