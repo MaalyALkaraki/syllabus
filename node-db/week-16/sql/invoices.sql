@@ -9,7 +9,7 @@ CREATE TABLE invoices (
 
 INSERT INTO invoices (res_id, total, invoice_date, paid)
   SELECT res.id,
-         rm.rate * (res.checkout_date - res.checkin_date),
+         rm.rate * (res.checkout_date - res.checkin_date) as total,
          res.checkout_date,
          (rm.rate * (res.checkout_date - res.checkin_date) % 11) != 2
     FROM reservations res JOIN
