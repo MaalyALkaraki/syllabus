@@ -456,33 +456,33 @@ or:
 ---
 ### Exercise - Using Transactions
 1.  In the psql command line tool, issue the commands:
-
 ```
     BEGIN TRANSACTION;
     UPDATE reservations SET room_no = 310 WHERE id = 10;
 ```
 Now open a new terminal session (leaving the first still open) and in psql do:
-
 ```
-    SELECT * FROM reservations WHERE id = 10;
+SELECT * FROM reservations WHERE id = 10;
 ```
 What do you notice about room_no? Leave this session open as well.
-2.  Go back to the first terminal session (which should still be open in psql). Issue the following command:
 
+2.  Go back to the first terminal session (which should still be open in psql). Issue the following command:
 ```
-    COMMIT;
+COMMIT;
 ```
 then return to the second terminal session and requery reservation 10. What has changed?
-3.  Repeat step 1 of this exercise (use the same two terminal sessions if you wish).
-4.  In the second terminal session issue the command:
 
+3.  Repeat step 1 of this exercise (use the same two terminal sessions if you wish).
+
+4.  In the second terminal session issue the command:
 ```
-    UPDATE reservations SET room_no = 304 WHERE id = 10;
+UPDATE reservations SET room_no = 304 WHERE id = 10;
 ```
 What happens?
+
 5.  Leaving the second terminal open, go back to the first session and issue the command:
 ```
-    ROLLBACK;
+ROLLBACK;
 ```
 Now check what has happened in the second session. Why do you think that happened? Requery reservation id 10 and check the room number.
 
