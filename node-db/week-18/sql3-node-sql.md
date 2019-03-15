@@ -292,6 +292,15 @@ To insert rows into our tables we use a POST instead of a GET method. We define 
         // add code here to insert row...
     });
 
+We are going to use body-parser to process JSON sent from the browser (or Postman). You probably need to install body-parser and configure it in server.js:
+
+    npm install body-parser --save
+
+You must configure it in server.js using the following code near the top of the file:
+```
+    var bodyParser = require('body-parser');
+    app.use(bodyParser.json());
+```
 The browser sends the values for the new row as JSON. By using body-parser we can extract them from `req.body` into variables:
 
     var nam = req.body.name;
