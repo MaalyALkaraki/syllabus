@@ -6,13 +6,19 @@ We shall use PostgreSQL - a widely used relational database. It's open-source an
 **Note that you must be logged in as a user with Administrator privileges on OSX for all these steps.**
 
 From the Macintosh OSX system you can install PostgreSQL from the Postgres.app package. Download this from https://postgresapp.com but make sure you choose PostgreSQL version 10 and the appropriate platform for your Mac. Once you have downloaded Postgres you can open the disk image from your Downloads folder. Drag the Postgres icon to the Applications folder.
+
 ![Postgres Disk Image](mac-screenshots/Screenshot_Postgres_disk.png)
+
 Open Applications in the Finder and start Postgres. When you receive the alert **"Postgres" is an application downloaded from the internet...** then click on the Open button. You may be prompted for other options (e.g. auto update, ...) and you can choose your own preference.
 
 When the PostgreSQL window appears then click on the Initialise button to create your local PostgreSQL database and user - they will both have the same name as your OSX username.
+
 ![Initialise](mac-screenshots/Screenshot_Postgres_initialise.png)
+
 PostgreSQL initialises itself, creating the initial databases (template1, postgres and &lt;your user name>) along with corresponding users. These should then be displayed in the PostgreSQL window, as below:
+
 ![Running](mac-screenshots/Screenshot_Postgres_running.png)
+
 ## Configure the Command Line Interface (CLI)
 To use the PostgreSQL command line tools you need to add the directory to your path (used to find commands in the terminal). There are several ways to do this but the simplest is to create a file containing the directory path name. Open the terminal and enter the appropriate commands from the list below (note: you may not need to create the directory):
 ```
