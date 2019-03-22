@@ -21,7 +21,7 @@ Use the SQL command CREATE TABLE...
       disputed      BOOLEAN DEFAULT FALSE
     );
 
-The CREATE TABLE command can be quite long and complex but if you made a mistake you would have to retype the whole command...😠!!!  So…
+The CREATE TABLE command can be quite long and complex but if you made a mistake you would have to retype the whole command...!!!  So…
 
 Put the command into a text file using your favourite editor then you can run the file from the CLI.
 
@@ -93,7 +93,7 @@ Use the ISO standard 'YYYY-MM-DD' for dates and 'YYYY-MM-DD hh:mm:ss.ddd' for da
 ## Exercise: Initial Data
 Modify your script file that creates the invoice_items table and add a few rows each for invoices 22, 31 and 44. You can invent the data (e.g. meals, drinks, laundry) but use item numbers starting from 1 for each invoice. For example:
 
-    INSERT INTO invoice_items VALUES 
+    INSERT INTO invoice_items VALUES
         (22, 1, 'Restaurant', '2018-09-15 20:24', 31.85, FALSE),
         (22, 2, 'Bar', '2018-09-15 22:32:21', 12.87, FALSE),
         (22, 3, 'Laundry', '2018-09-16 07:30', 10.30, FALSE);
@@ -170,7 +170,7 @@ Create the table with id (or similar name) as 1st column and datatype SERIAL wit
 
     CREATE TABLE reservations (
       id          SERIAL PRIMARY KEY,
-      customer_id INTEGER NOT NULL, 
+      customer_id INTEGER NOT NULL,
       etc...
     );
 
@@ -254,7 +254,7 @@ You can define indexes to improve access to particular column values. Such index
 
 ![Indexes Diagram](indexes.png)
 
-The RDBMS automatically maintains indexes to correspond to changing row contents. 
+The RDBMS automatically maintains indexes to correspond to changing row contents.
 *   If a new row is added then its indexed column value is added to the index.
 *   If a row is deleted its indexed value is removed from the index.
 *   If an indexed column value is updated then the index is updated accordingly.
