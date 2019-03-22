@@ -312,11 +312,15 @@ In INSERT statements if you omit a column from the column list (following the ta
 * a default value if one has been specified in the CREATE TABLE command
 * NULL if neither of the above apply
 
-There are some functions that can operate on NULL values, especially the `ifnull(x, y)` function. This function looks at the first argument `x` and if it is NULL returns the value of the second argument `y` otherwise it returns the value of `x`. For example:
+There are some functions that can operate on NULL values, especially the `coalesce(x, y)` function. This function looks at the first argument `x` and if it is NULL returns the value of the second argument `y` otherwise it returns the value of `x`. For example:
 
-    SELECT room_no, rate, ifnull(room_type, 'None') type
+    SELECT room_no, rate, coalesce(room_type, 'None') type
       FROM rooms
       WHERE no_guests IS NULL;
+
+Notes:
+* The coalesce function can take more than two arguments and returns the first of these (from left to right) that is not null.
+* This feature is provided by most SQL vendors but goes by different names, e.g. ifnull(x, y) in MySQL, nvl(x, y) in Oracle, etc...
 
 ---
 ## Exercise
