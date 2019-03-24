@@ -595,81 +595,187 @@ The server then performs a more complex transaction to perform the update. First
 
 For example, code to update customer's email address:
 
-    app.put('/customers/email/:id', function(req, res) {
-        // EXPECTED JSON Object:
-        //  { original: {
-        //      email: 'fred@bloggs.org',
-        //    },
-        //    update: {
-        //      email: 'fred.bloggs@bloggs.com'
-        //    }
-        //  }
+```
+//
+// Function to compare two objects for equality of properties
+//
+function objEqual (a, b) {
+  for (var item in a) {
+    if (a[item] != b[item]) {
+        return false
+    }
+  };
+return true
+}
+
+app.put('/customers/email/:id', function(req, res) {
+    // EXPECTED JSON Object:
+    //  { original: {
+    //      email: 'fred@bloggs.org',
+    //    },
+    //    update: {
+    //      email: 'fred.bloggs@bloggs.com'
+    //    }
+    //  }
 
     var sql1 = "SELECT email " +
-              "FROM customers " +
-              "WHERE id = $1 " +
-              "FOR UPDATE";
+          "FROM customers " +
+          "WHERE id = $1 " +
+          "FOR UPDATE";
     var sql2 = "UPDATE customers " +
-              "SET email = $2 " +
-              "WHERE id = $1"
+          "SET email = $2 " +
+          "WHERE id = $1";
 
-    client.query("BEGIN TRANSACTION", function(err) {
-      if (err == null) {
-        console.log("Done BEGIN TRANSACTION");
-        client.query(sql1, [custId], function(err, result) {
-          if (err == null) {
-            console.log("Done SELECT ... FOR UPDATE");
-            if (objEqual(result.rows[0], req.body.original)) {
-              console.log("Done - record matches");
-              client.query(sql2,
-                [custId, uemail],
-                function(err) {
-                  if (err == null) {
-                    console.log("Done UPDATE...");
-                    client.query("COMMIT", function(err) {
-                      if (err == null) {
-                        console.log("Done COMMIT");
-                        release();
-                        res.status(200).json({done: "Update completed."});
-                        return;
-                      } else {
-                        console.log("ERROR in COMMIT: ${err}");
-                        client.query("ROLLBACK");
-                        release();
-                        return res.status(500).json({error: err});
-                      }
-                    })
-                  } else {
-                    checkErr(err, "UPDATE");
-                    return;
-                  }
-                })
-            } else {
-              console.log("Row modified by another user - try again");
-              release();
-              res.status(400).json({error: "Row modified by another user - try again"});
-              return;
-            }
-          } else {
-            checkErr(err, "SELECT FOR UPDATE");
-            return;
-          }
-        })
-      } else {
-        checkErr(err, "BEGIN TRANSACTION");
+    db.connect((err, client, release) => {
+      if (err) {
+        console.error('Error acquiring client', err.stack);
+        res.status(500).json({error: err});
         return;
       }
+
+      const checkErr = function(err, reason) {
+        if (err) {
+          console.log("Error: ${reason} - ${err}");
+          client.query("ROLLBACK", function(err) {
+            console.log("ERROR in ROLLBACK - ${err}");
+          });
+          release();
+          res.status(500).json({error: err});
+        }
+        return !!err;
+      }
+
+      client.query("BEGIN TRANSACTION", function(err) {
+        if (err == null) {
+          console.log("Done BEGIN TRANSACTION");
+          client.query(sql1, [custId], function(err, result) {
+            if (err == null) {
+              console.log("Done SELECT ... FOR UPDATE");
+              if (objEqual(result.rows[0], req.body.original)) {
+                console.log("Done - record matches");
+                client.query(sql2,
+                  [custId, uemail],
+                  function(err) {
+                    if (err == null) {
+                      console.log("Done UPDATE...");
+                      client.query("COMMIT", function(err) {
+                        if (err == null) {
+                          console.log("Done COMMIT");
+                          release();
+                          res.status(200).json({done: "Update completed."});
+                          return;
+                        } else {
+                          console.log("ERROR in COMMIT: ${err}");
+                          client.query("ROLLBACK");
+                          release();
+                          return res.status(500).json({error: err});
+                        }
+                      })
+                    } else {
+                      checkErr(err, "UPDATE");
+                      return;
+                    }
+                  })
+              } else {
+                console.log("Row modified by another user - try again");
+                release();
+                res.status(400).json({error: "Row modified by another user - try again"});
+                return;
+              }
+            } else {
+              checkErr(err, "SELECT FOR UPDATE");
+              return;
+            }
+          })
+        } else {
+          checkErr(err, "BEGIN TRANSACTION");
+          return;
+        }
+      });
     });
+  });
+```
 
-As you can see the above is much more complex than the simple calls to `db.query()` in our previous endpoint code. The above snippet doesn't show the extra functions, `objEqual` and `checkErr` that are used to simplify the main part of the code.
+As you can see the above is much more complex than the simple calls to `db.query()` in our previous endpoint code. Note the extra functions, `objEqual` and `checkErr` that are used to simplify the main part of the code.
 
-Rather than comparing the whole row another approach adds a column to the table, say, `row_version`, that is incremented each time the row is updated. The browser only needs to send back the original row's version rather than the whole row. If another user has changed the row then the version number will have been updated and the browser's copy will be different.
+---
+### Using async/await for Transactions
+By using the Javascript async and await constructs you can avoid the difficulty of deep nesting of callback functions (also known as "Callback Hell"). Such problems happen when you need to issue many SQL commands in sequence because each must be done in the callback function of its predecessor to ensure correct ordering.
+
+We also use the `try ... catch ...` syntax to execute the await functions thus also reducing the complexity of error checking because await will throw an exception if an error occurs.
+
+Below you can find the complete code for an endpoint to update a customer's phone number:
+
+```
+//
+// Endpoint to update customer phone number using async/await
+//
+app.put('/customers/phone/:id', (req, res) => {
+    // EXPECTED JSON Object:
+    //  { original: {
+    //      phone: '01234 567 890',
+    //    },
+    //    update: {
+    //      phone: '0161 123 4567'
+    //    }
+    //  }
+  var custId = parseInt(req.params.id);
+
+  var phoneNos = req.body.update;
+
+  const sql1 = "SELECT phone FROM customers WHERE id = $1 FOR UPDATE";
+
+  const sql2 = "UPDATE customers SET phone = $2 WHERE id = $1";
+
+  let result;
+
+  (async function() {     // look up Immediately Invoked Function Expression (IIFE)
+    let client;
+    try {
+      client = await db.connect();
+      await client.query("BEGIN TRANSACTION");
+      result = await client.query(sql1, [custId]);
+      if (objEqual(result.rows[0], req.body.original)) {
+        await client.query(sql2, [custId, phoneNos.phone]);
+        await client.query("COMMIT");
+      } else {
+        await client.query("ROLLBACK");
+        client.release();
+        res.status(400).json({error: "Row modified by another user - try again"});
+        return;
+      }
+      client.release();
+      res.status(200).send("Update completed successfully");
+      return;
+    } catch(err) {
+      client.query("ROLLBACK");
+      console.log("ERROR: " + err);
+      client.release();
+      res.status(500).send("ERROR: " + err)
+      return;  
+    }
+  })();
+});
+```
+
+This endpoint uses the same `objEqual` function to compare the row object returned by `SELECT ... FOR UPDATE` as the original approach. Compare this with the more traditional code that uses callbacks to sequence the SQL commands.
+
+---
+### Using a Row Version Column
+Rather than comparing the whole row another approach adds a column to the table, say, `row_version`, that is incremented each time the row is updated. The browser only needs to send back the original row's version rather than the whole row. If another user has changed the row then the version number will have been updated and the browser's copy will be different. This useful in the case where an update may change a large number of column values but does require a new column that doesn't hold any useful business data.
 
 ---
 ### Exercise
 Change all your endpoints that change the rows in the database (that is, use UPDATE or DELETE) such that each of the changes take place in the context of a transaction. Use optimistic locking to ensure multi-user consistency.
 
-You can choose whether to add a row_version column or compare the whole row.
+You can choose whether to use callbacks or async/await.
+
+You can also choose whether to add a row_version column or compare the whole row.  To add a row_version olumn to a table use the SQL:
+```
+    ALTER TABLE table_name ADD COLUMN row_version;
+```
+
+If you choose to use a row_version column remember you must also ensure that its value is always updated whenever a row is updated.
 
 ---
 ## Homework
