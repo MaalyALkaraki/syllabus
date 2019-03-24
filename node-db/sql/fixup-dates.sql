@@ -1,6 +1,6 @@
 -- PL/pgSQL function to fix dates in the hotel database to make them current with the course run.
 
-drop function fixup_dates();
+drop function if exists fixup_dates();
 
 create function fixup_dates() returns integer as
 $$
