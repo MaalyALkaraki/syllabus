@@ -414,6 +414,17 @@ You can use a subquery in place of a table (in postgreSQL you must always use a 
 You can use this construct in a wide variety of contexts. One classic use is in SQL dialects that don't support nested aggregate functions you can use a subquery to find things like `MAX(SUM(expr))`.
 
 ---
+
+## Exercise
+Use subqueries to resolve the following:
+1.  List all rooms for which there are no reservations for the next month.
+2.  How many customers have not made any reservations within the last 30 days?
+3.  List all customers along with the total of all the invoices they have paid. Don't include unpaid invoices. Some customers have no invoices - leave the total blank.
+4.  What is the maximum number of reservations in any month (based on checkin date)?
+Hint - use the date_trunc function...
+5.  Bonus Question : List all the reservations for the month which has the largest number of reservations. (hint: nesting)
+
+---
 ## Lesson Summary
 In this lesson you have learned how to:
 * Aggregate data over multiple rows and use aggregate values to restrict the results
