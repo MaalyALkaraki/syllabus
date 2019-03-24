@@ -617,7 +617,10 @@ app.put('/customers/email/:id', function(req, res) {
     //      email: 'fred.bloggs@bloggs.com'
     //    }
     //  }
+    var uemail = req.body.update.email;
 
+    var custId = parseInt(req.params.id);
+  
     var sql1 = "SELECT email " +
           "FROM customers " +
           "WHERE id = $1 " +
