@@ -620,7 +620,7 @@ app.put('/customers/email/:id', function(req, res) {
     var uemail = req.body.update.email;
 
     var custId = parseInt(req.params.id);
-  
+
     var sql1 = "SELECT email " +
           "FROM customers " +
           "WHERE id = $1 " +
@@ -751,9 +751,11 @@ app.put('/customers/phone/:id', (req, res) => {
       res.status(200).send("Update completed successfully");
       return;
     } catch(err) {
-      client.query("ROLLBACK");
+      if (client != null) {
+        client.query("ROLLBACK");
+        client.release();
+      }
       console.log("ERROR: " + err);
-      client.release();
       res.status(500).send("ERROR: " + err)
       return;  
     }
