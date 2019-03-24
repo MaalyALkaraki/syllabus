@@ -779,3 +779,16 @@ If you choose to use a row_version column remember you must also ensure that its
 
 ---
 ## Homework
+1.  If you haven't yet completed all the exercises from this lesson then please do that first.
+2.  Create an endpoint that allows for changes to the customer details. This uses the PUT html method and the UPDATE statement in SQL.
+  1. Consider how you'll identify the row to be updated.
+  2. Consider how to pass in the values to be changed.
+  Hint: see the single record query and the insert new record cases
+3. Create other endpoints for the reservations table (e.g. query all reservations for a customer, query reservations for a room, delete a reservation, etc…)
+4. We haven't covered everything you need in SQL - take time to study the w3schools lessons on SQL:
+  1.  Left Join, Right Join, Full Join
+  2.  Data Definition Language (DDL) to create, alter and drop tables
+  3.  Indexes to improve (or disrupt?) performance
+5. Look at other sources discussing the topics we have already covered to get a broader view.
+
+Ask your mentor if you need to know more...
