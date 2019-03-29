@@ -241,6 +241,43 @@ When you have a foreign key constraint defined:
 ```
 5.  Add a foreign key from invoice items to enforce the new requirement.
 
+---
+## Other Types of Constraint
+So far you've just used PRIMARY KEY, FOREIGN KEY and UNIQUE consraints. The NOT NULL option is also a constraint.
+
+You can also define a CHECK constraint to validate the values stored in a row in the table, for example:
+```
+CREATE TABLE reservations (
+  ...
+  CHECK (checkin_date <= checkout_date),
+  ...
+  )
+```
+This constraint prevents the checkout date from being earlier than the checkin date (clearly, a mistake if we tried).  This constraint works equally effectively for new (inserted) rows and for changes (updates) to existing rows.
+
+### Check Constraint Restrictions
+* Check constraints can only refer to literal values and/or column values in the same row
+* Check can use any of the SQL conditional clauses, e.g. =, <, >, <=, >=, !=, IN (...), BETWEEN x AND y, LIKE ..., etc.
+* Check cannot use subqueries
+
+### Constraint Names
+Any kind of constraint can be given a name.  This is useful when trying to understand error messages (when a named constrint is violated its name is included in the error message).
+
+To name a constraint, use the following syntax:
+```
+    CONSTRAINT res_check_dates CHECK (checkin_date <= checkout_date)
+    CONSTRAINT res_pk PRIMARY KEY (id)
+    CONSTRAINT res_cust_fk FOREIGN KEY cust_id REFERENCES customers(id)
+    etc...
+```
+
+---
+### Exercise:
+1.  Define a check constraint on the rooms table to ensure that rate must be greater than zero.
+2.  Ensure that the reservation checkin date must be the same as or later than the booking date
+3.  Ensure that rooms can only take between 1 and 4 guests
+4.  Use your SQL skills to test these constraints by attempting to insert rows that violate the constraints
+
 
 ---
 ## Designing for Performance
@@ -284,9 +321,14 @@ or you can define the UNIQUE constraint at the end of the table definition:
 
       UNIQUE (email)
 
+### Exercise
+1.  Create an index on the checkin date in the reservations table.
+2.  Create a unique index on the combined room_no and checkin_date columns in the reservations table.
+
 ### An Interesting Question...
 What is the only guaranteed performance effect of adding an index to a table?
 
 Discuss...
 
 ---
+## End of Lesson
