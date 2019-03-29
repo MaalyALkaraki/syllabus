@@ -243,7 +243,7 @@ When you have a foreign key constraint defined:
 
 ---
 ## Other Types of Constraint
-So far you've just used PRIMARY KEY, FOREIGN KEY and UNIQUE consraints. The NOT NULL option is also a constraint.
+So far you've just used PRIMARY KEY and FOREIGN KEY constraints. The NOT NULL option is also a constraint.
 
 You can also define a CHECK constraint to validate the values stored in a row in the table, for example:
 ```
@@ -319,7 +319,7 @@ This is equivalent to using a UNIQUE constraint:
 
 or you can define the UNIQUE constraint at the end of the table definition:
 
-      UNIQUE (email)
+      CONSTRAINT cust_unique_email UNIQUE (email)
 
 ### Exercise
 1.  Create an index on the checkin date in the reservations table.
