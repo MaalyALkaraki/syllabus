@@ -109,7 +109,7 @@ We need to record customer comments for invoice items:
 Now insert a new row with a comment:
 
     INSERT INTO invoice_items (invoice_id, item_no,
-        item_type, item_time, amount, comment)
+        charge_type, charge_time, amount, comment)
       VALUES (16, 1,
         'RESTAURANT', '2018-06-12 19:30', 36.95,
         'Great food!');
