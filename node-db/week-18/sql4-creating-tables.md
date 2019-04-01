@@ -261,7 +261,7 @@ This constraint prevents the checkout date from being earlier than the checkin d
 * Check cannot use subqueries
 
 ### Constraint Names
-Any kind of constraint can be given a name.  This is useful when trying to understand error messages (when a named constrint is violated its name is included in the error message).
+Any kind of constraint can be given a name.  This is useful when trying to understand error messages (when a named constraint is violated its name is included in the error message).
 
 To name a constraint, use the following syntax:
 ```
